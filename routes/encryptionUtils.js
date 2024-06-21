@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-require('dotenv').config(); // Load environment variables from .env file
+// require('dotenv').config(); // Load environment variables from .env file
 
 const secretKey = process.env.SECRET_KEY;
 const encryptMethod = 'AES-256-CBC';
