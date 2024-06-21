@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const User = require('../server/models/users');
 const BrokerSchema = require('./models/users')
 const signup = require('./routes/signup');
 const signin = require('./routes/signin');
