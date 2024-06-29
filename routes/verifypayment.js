@@ -1,6 +1,6 @@
 const User = require('../models/users')
 const crypto = require("crypto")
-// require('dotenv').config()
+require('dotenv').config()
 
 const verifypayment = async(req,res) =>{
     const Email = req.body.Email

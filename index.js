@@ -36,8 +36,6 @@ const navbar = require('./routes/navbar')
 const mystartegies = require("./routes/mystartegies")
 const verifypayment = require('./routes/verifypayment')
 
-// agsvghvasghvaghsvghavchgvdcghvshgdcvghsd
-// jvjgvgvgvghvghhg
 
 require('./models/users');
 app.use(cors());
