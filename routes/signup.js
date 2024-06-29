@@ -5,7 +5,9 @@ const mongoose = require('mongoose')
 var db = mongoose.connection;
 
 const crypto = require('crypto');
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 const signup = async (req, res) => {
   try {
