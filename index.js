@@ -85,6 +85,7 @@ app.post('/updateprofile',updateprofile)
 app.post('/navbar',navbar)
 app.post('/mystartegies',mystartegies)
 app.post('/verify-payment',verifypayment)
+app.post('/start',start)
 
 app.listen(port, () => {
     console.log('http://localhost:5000');
@@ -102,6 +103,18 @@ if (timeUntilTarget < 0) {
     timeUntilTarget = targetTime - now;
 }
 
+
+const start=async()=>{
+    const a=await saveUserData()
+    const response2 = await axios.post('http://localhost:5000/getSymbol');
+
+    console.log(response2.data)
+    const ceToken=response2.data.ceToken
+    const peToken=response2.data.peToken
+    const ceHigh=response2.data.cehigh
+    const peHigh=response2.data.pehigh
+    strategy_1({ceToken,peToken,ceHigh,peHigh})
+}
 // const timerId = setTimeout(async () => {
 
 //     // const a=await saveUserData()
