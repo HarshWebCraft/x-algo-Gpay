@@ -93,7 +93,7 @@ app.listen(port, () => {
 
 
 const now = new Date();
-const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 15, 55); // 09:59:59
+const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()+5); // 09:59:59
 console.log(targetTime)
 let timeUntilTarget = targetTime - now;
 

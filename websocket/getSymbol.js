@@ -103,7 +103,11 @@ const getSymbole = async(req, res) => {
             20240418,
             20240425,
             20240502,
-            20240509
+            20240509,
+            20240711,
+            20240718,
+            20240725,
+            20240801
         ];
 
         const dates1 = [
@@ -112,6 +116,10 @@ const getSymbole = async(req, res) => {
             "NIFTY25APR24",
             "NIFTY02MAY24",
             "NIFTY09MAY24",
+            "NIFTY11JUL24",
+            "NIFTY18JUL24",
+            "NIFTY25JUL24",
+            "NIFTY01AUG24",
 
         ];
 

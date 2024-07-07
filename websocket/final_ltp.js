@@ -8,8 +8,8 @@ const final_ltp=async(ce,pe,jwtToken)=>{
             "exchange": "NFO",
             "symboltoken": ce.token, 
             "interval": "ONE_MINUTE",
-            "fromdate": "2024-04-24 09:15",
-            "todate": "2024-04-24 09:16"
+            "fromdate": "2024-07-05 09:15",
+            "todate": "2024-07-05 09:16"
         });
 
         var config = {
@@ -51,8 +51,8 @@ const final_ltp=async(ce,pe,jwtToken)=>{
             "exchange": "NFO",
             "symboltoken": pe.token, 
             "interval": "ONE_MINUTE",
-            "fromdate": `2024-04-24 09:15`,
-            "todate": `2024-04-24 09:16`
+            "fromdate": `2024-07-05 09:15`,
+            "todate": `2024-07-05 09:16`
         });
 
         var config = {
