@@ -102,16 +102,16 @@ if (timeUntilTarget < 0) {
     timeUntilTarget = targetTime - now;
 }
 
-const timerId = setTimeout(async () => {
+// const timerId = setTimeout(async () => {
 
-    // const a=await saveUserData()
-    const response2 = await axios.post('http://localhost:5000/getSymbol');
+//     // const a=await saveUserData()
+//     const response2 = await axios.post('http://localhost:5000/getSymbol');
 
-    console.log(response2.data)
-    const ceToken=response2.data.ceToken
-    const peToken=response2.data.peToken
-    const ceHigh=response2.data.cehigh
-    const peHigh=response2.data.pehigh
-    strategy_1({ceToken,peToken,ceHigh,peHigh})
+//     console.log(response2.data)
+//     const ceToken=response2.data.ceToken
+//     const peToken=response2.data.peToken
+//     const ceHigh=response2.data.cehigh
+//     const peHigh=response2.data.pehigh
+//     strategy_1({ceToken,peToken,ceHigh,peHigh})
     
-}, timeUntilTarget);
+// }, timeUntilTarget);
