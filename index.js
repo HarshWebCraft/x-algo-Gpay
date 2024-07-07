@@ -85,42 +85,7 @@ app.post('/updateprofile',updateprofile)
 app.post('/navbar',navbar)
 app.post('/addtowallet',addToWallet)
 app.post('/verify-payment',verifypayment)
-<<<<<<< HEAD
 app.post('/newamount',newamount)
-
-
-app.listen(port, () => {
-    console.log('http://localhost:5000');
-})
-
-
-
-const now = new Date();
-const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 15, 55); // 09:59:59
-console.log(targetTime)
-let timeUntilTarget = targetTime - now;
-
-if (timeUntilTarget < 0) {
-    targetTime.setDate(targetTime.getDate() + 1);
-    timeUntilTarget = targetTime - now;
-}
-
-const timerId = setTimeout(async () => {
-
-    // const a=await saveUserData()
-=======
-app.post('/start',async()=>{
-    const a=await saveUserData()
->>>>>>> 464978650c3027ad8e49357ecbc43eda2b856834
-    const response2 = await axios.post('http://localhost:5000/getSymbol');
-
-    console.log(response2.data)
-    const ceToken=response2.data.ceToken
-    const peToken=response2.data.peToken
-    const ceHigh=response2.data.cehigh
-    const peHigh=response2.data.pehigh
-    strategy_1({ceToken,peToken,ceHigh,peHigh})
-})
 
 app.listen(port, () => {
     console.log('http://localhost:5000');
