@@ -22,8 +22,8 @@ const transaction = new Schema({
             type:Number
         },
         date:{
-            type:Date,
-            default:Date.now
+            type:String,
+            require:true
         },
         razorpay_payment_id:{
             type:String,
