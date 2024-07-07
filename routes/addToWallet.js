@@ -9,14 +9,13 @@ const razorpay = new Razorpay({
     key_secret: process.env.KEY_SECRET
 });
 
-const addMyStra = async (req, res) => {
+const addToWallet = async (req, res) => {
     try {
         const user = await User.findOne({ Email: req.body.Email });
-        const index = req.body.index;
-
+        
         const options = {
-            amount: req.body.amount * 100,
-            currency: req.body.currency,
+            amount: req.body.amount*100,
+            currency: "INR",
             receipt: `receipt_${Math.floor(Math.random() * 1000000)}`,
         };
 
@@ -29,7 +28,6 @@ const addMyStra = async (req, res) => {
                     currency: response.currency,
                     amount: response.amount,
                 },
-                myStartegies: user.MyStartegies,
                 Name: user.Name,
                 Email: user.Email,
                 MobileNo: user.MobileNo
@@ -42,4 +40,4 @@ const addMyStra = async (req, res) => {
     }
 };
 
-module.exports = addMyStra;
+module.exports = addToWallet;

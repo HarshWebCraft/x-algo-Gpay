@@ -24,7 +24,7 @@ const addExcelData = require('./createExcel/createExcel');
 const resetPassword = require('./routes/resetPassword')
 const forgetPassword = require('./routes/forgetPassword')
 const tour = require('./routes/tour');
-const addMyStra = require('./routes/addMyStra');
+const addMyStra = require('./routes/addToWallet');
 const removeMyStra = require('./routes/removeMyStra');
 const addDeployed = require('./routes/addDeployed');
 const removeDeployed = require('./routes/removeDeployed');
@@ -33,9 +33,9 @@ const mobileno = require('./routes/mobileno')
 const profile = require('./routes/profile')
 const updateprofile = require('./routes/updateprofile')
 const navbar = require('./routes/navbar') 
-const mystartegies = require("./routes/mystartegies")
+const addToWallet = require("./routes/addToWallet")
 const verifypayment = require('./routes/verifypayment')
-
+const newamount = require('./routes/newamount')
 
 require('./models/users');
 app.use(cors());
@@ -83,8 +83,10 @@ app.post('/mobileno', mobileno)
 app.post('/profile',profile)
 app.post('/updateprofile',updateprofile)
 app.post('/navbar',navbar)
-app.post('/mystartegies',mystartegies)
+app.post('/addtowallet',addToWallet)
 app.post('/verify-payment',verifypayment)
+app.post('/newamount',newamount)
+
 
 app.listen(port, () => {
     console.log('http://localhost:5000');

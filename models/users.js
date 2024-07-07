@@ -13,12 +13,35 @@ const DeployedSchema=new Schema({
     Account:String,
     AppliedDate:String
 })
+const transaction = new Schema({
+        payment_type:{
+            type:String,
+            require:true
+        },
+        amount:{
+            type:Number
+        },
+        date:{
+            type:Date,
+            default:Date.now
+        },
+        razorpay_payment_id:{
+            type:String,
+            require:true
+        },
+        razorpay_order_id:{
+            type:String,
+            require:true
+        },
+})
 
 const userSchema= new Schema({
     Name:String,
     Email:String,
     Password:String,
     MobileNo:String,
+    Balance : { type:Number,default:0},
+    Transaction:[transaction],
     Profile_Img: String,
     Broker:Boolean,
     BrokerCount:Number,
@@ -32,4 +55,5 @@ const userSchema= new Schema({
 const User=new mongoose.model('AWT',userSchema);
 module.exports=userSchema
 module.exports=BrokerSchema
+module.exports=transaction
 module.exports=User;
