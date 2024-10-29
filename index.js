@@ -40,6 +40,7 @@ const mystartegies = require("./routes/mystartegies");
 const subscribe = require("./routes/subscribe");
 const addMarketPlaceData = require("./routes/addMarketPlaceData.js");
 const getMarketPlace = require("./routes/getMarketPlace.js");
+const updateSubscribe = require("./routes/updateSubscribe.js");
 
 require("./models/users");
 app.use(cors());
