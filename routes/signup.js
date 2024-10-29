@@ -11,6 +11,11 @@ if (process.env.NODE_ENV !== "production") {
 
 const signup = async (req, res) => {
   try {
+    const url =
+      process.env.NODE_ENV === "production"
+        ? "https://x-algo-gpay.onrender.com"
+        : "http://localhost:3000";
+
     const data = {
       Name: "",
       Email: req.body.email,
@@ -57,7 +62,7 @@ const signup = async (req, res) => {
       const encryptedData = encrypt(`${req.body.email}`, secretKey);
       console.log("asdasd");
 
-      const verificationLink = `http://localhost:3000/verify-email?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
+      const verificationLink = `${url}/verify-email?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
