@@ -32,10 +32,7 @@ const addbroker = async (req, res) => {
             const ApiKey = req.body.ApiKey;
             // const brokerCount = req.body.userSchema.BrokerCount;
             console.log('addbroker ma email , id , password and secretkey' + email + angelId + angelpass + secretKey)
-<<<<<<< HEAD
-            
-=======
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
+
             const totpCode = speakeasy.totp({
                 secret: secretKey,
                 encoding: 'base32',

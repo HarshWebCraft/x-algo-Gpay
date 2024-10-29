@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const User = require("../models/users");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
@@ -8,25 +7,10 @@ var db = mongoose.connection;
 const crypto = require("crypto");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
-=======
-const User = require('../models/users')
-const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose')
-var db = mongoose.connection;
-
-const crypto = require('crypto');
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
 }
 
 const signup = async (req, res) => {
   try {
-<<<<<<< HEAD
-=======
-
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
     const data = {
       Name: "",
       Email: req.body.email,
@@ -38,20 +22,14 @@ const signup = async (req, res) => {
       BrokerCount: 0,
       MyStartegies: [],
       Tour: false,
-<<<<<<< HEAD
       BrokerSchema: [],
     };
-=======
-      BrokerSchema: []
-    }
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
 
     const checking = await User.findOne({ Email: req.body.email });
 
     if (checking) {
       console.log("User details already exist");
       res.json({ signup: false });
-<<<<<<< HEAD
     } else {
       console.log(data);
 
@@ -62,59 +40,30 @@ const signup = async (req, res) => {
 
       const secretKey = process.env.SECRET_KEY;
       const encryptMethod = "AES-256-CBC";
-=======
-    }
-    else {
-      console.log(data)
-
-      db.collection('awts').insertOne(data, (err, res) => {
-        if (err) console.log(err);
-        console.log("inserted new user to database")
-      })
-
-      const secretKey = process.env.SECRET_KEY;
-      const encryptMethod = 'AES-256-CBC';
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
 
       function encrypt(text, secret) {
         const iv = crypto.randomBytes(16); // Generate a random IV for each encryption
         const cipher = crypto.createCipheriv(encryptMethod, secret, iv);
 
-<<<<<<< HEAD
         let encrypted = cipher.update(text, "utf-8", "base64");
         encrypted += cipher.final("base64");
 
         return {
           iv: iv.toString("base64"),
-=======
-        let encrypted = cipher.update(text, 'utf-8', 'base64');
-        encrypted += cipher.final('base64');
-
-        return {
-          iv: iv.toString('base64'),
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
           encryptedData: encrypted,
         };
       }
 
       const encryptedData = encrypt(`${req.body.email}`, secretKey);
-<<<<<<< HEAD
       console.log("asdasd");
 
       const verificationLink = `http://localhost:3000/verify-email?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
-=======
-      console.log("asdasd")
-
-      const verificationLink = `http://localhost:3000/verify-email?email=${(encryptedData.encryptedData)}&iv=${encryptedData.iv}`;
-
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-<<<<<<< HEAD
           user: "harshdvadhavana26@gmail.com",
-          pass: "sfai mxlq yera mfmh",
+          pass: "sfai mxlq yera mfmh", // Consider using environment variables for security
         },
       });
 
@@ -122,18 +71,6 @@ const signup = async (req, res) => {
         from: "ayushsantoki1462004@gmail.com",
         to: `${req.body.email}`,
         subject: "HTML Email Example",
-=======
-          user: 'harshdvadhavana26@gmail.com',
-          pass: 'sfai mxlq yera mfmh'
-        }
-      });
-
-
-      const mailOptions = {
-        from: 'ayushsantoki1462004@gmail.com',
-        to: `${req.body.email}`,
-        subject: 'HTML Email Example',
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
         html: `<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
         <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
             style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
@@ -183,20 +120,12 @@ const signup = async (req, res) => {
                 </td>
             </tr>
         </table>
-        
-<<<<<<< HEAD
     </body>`,
-=======
-    </body>`
-
-
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
       };
 
       // Send email
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-<<<<<<< HEAD
           console.error("Error occurred:", error);
         } else {
           console.log("Email sent:", info.response);
@@ -217,22 +146,3 @@ const signup = async (req, res) => {
 };
 
 module.exports = signup;
-=======
-          console.error('Error occurred:', error);
-        } else {
-          console.log('Email sent:', info.response);
-          return res.json({ email: data.email })
-        }
-      });
-
-      console.log('Successfully Signup ')
-      return res.json({ signup: true, userChema: checking, Verification: false })
-    }
-  }
-  catch (e) {
-    console.log("error is " + e)
-  }
-}
-
-module.exports = signup;
->>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
