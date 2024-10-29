@@ -22,7 +22,10 @@
     "jsonwebtoken": "^9.0.2",
     "method-override": "^3.0.0",
     "mongoose": "^8.4.4",
+<<<<<<< HEAD
     "mongoose-sequence": "^6.0.1",
+=======
+>>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
     "multer": "^1.4.2",
     "multer-gridfs-storage": "^5.0.2",
     "nodemailer": "^6.9.13",

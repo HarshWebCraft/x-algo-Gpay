@@ -24,6 +24,7 @@ const userInfo = async (req, res) => {
                 // console.log('addbroker ma email , id , password and secretkey' + Email + item.AngelId + item.AngelPass)
 
                 console.log('after if and else')
+<<<<<<< HEAD
 
                     const totpCode = speakeasy.totp({
                         secret: `${item.SecretKey}`,
@@ -34,6 +35,14 @@ const userInfo = async (req, res) => {
 
 
                 console.log('check')
+=======
+                const totpCode = speakeasy.totp({
+                    secret: `${item.SecretKey}`,
+                    encoding: 'base32',
+
+                });
+
+>>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
                 
 
                 var data = JSON.stringify({

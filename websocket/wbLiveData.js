@@ -40,9 +40,13 @@ const wbLivaData = (ceToken,peToken) => {
     };
 
     const fetchDataAndConnectWebSocket = async () => {
+<<<<<<< HEAD
 
         try {
             
+=======
+        try {
+>>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
             console.log('line 44 weblivedata.js')
             const response = await axios(config);
             const responseData = response.data;
@@ -62,7 +66,11 @@ const wbLivaData = (ceToken,peToken) => {
                 action: 1,
                 mode: 1,
                 exchangeType: 2,
+<<<<<<< HEAD
                 tokens: [`${ceToken.ceToken}`,`${ceToken.peToken}`] 
+=======
+                tokens: [`${ceToken.ceToken}`,`${ceToken.peToken}`] // token for nifty and bank nifty
+>>>>>>> 526c9003fb88f2d329a5a856bf31b4867227a7d9
             };
 
             web_socket.fetchData(json_req);
