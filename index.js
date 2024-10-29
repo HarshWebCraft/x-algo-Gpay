@@ -41,6 +41,7 @@ const subscribe = require("./routes/subscribe");
 const addMarketPlaceData = require("./routes/addMarketPlaceData.js");
 const getMarketPlace = require("./routes/getMarketPlace.js");
 const updateSubscribe = require("./routes/updateSubscribe.js");
+const getPreviousData = require("./Stra_2/Stra_2.js");
 
 require("./models/users");
 app.use(cors());
@@ -94,6 +95,15 @@ app.post("/addMarketPlaceData", addMarketPlaceData);
 app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
 
+app.get("/start", (req, res) => {
+  getPreviousData()
+    .then(() => res.send("Data fetched successfully"))
+    .catch((error) => {
+      console.log("Error fetching data:", error);
+      res.status(500).send("Error fetching data");
+    });
+});
+
 app.listen(port, () => {
   console.log("http://localhost:5000");
 });
@@ -106,7 +116,7 @@ const targetTime = new Date(
   now.getHours(),
   now.getMinutes(),
   now.getSeconds() + 5
-); // 09:59:59
+);
 console.log(targetTime);
 let timeUntilTarget = targetTime - now;
 
