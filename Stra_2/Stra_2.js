@@ -16,7 +16,6 @@ const apiKey = "xL9TyAO8";
 const privateKey = "xL9TyAO8";
 const server = http.createServer(app);
 
-// Function to get previous day's data
 const getPreviousData = async () => {
   const totpCode = speakeasy.totp({
     secret: secretKey,
