@@ -62,7 +62,7 @@ const signup = async (req, res) => {
       const encryptedData = encrypt(`${req.body.email}`, secretKey);
       console.log("asdasd");
 
-      const verificationLink = `${url}/verifyemail?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
+      const verificationLink = `${url}/verify-email?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
       // const verificationLink = `${url}/verify-email?email=${encodeURIComponent(
       //   encryptedData.encryptedData
       // )}&iv=${encodeURIComponent(encryptedData.iv)}`;
