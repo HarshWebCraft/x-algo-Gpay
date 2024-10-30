@@ -9,19 +9,16 @@ const secretKey = process.env.SECRET_KEY;
 const encryptMethod = "AES-256-CBC";
 
 function decrypt(encryptedData, secret, iv) {
-  try {
-    const decipher = crypto.createDecipheriv(
-      encryptMethod,
-      secret,
-      Buffer.from(iv, "base64")
-    );
-    let decrypted = decipher.update(encryptedData, "base64", "utf-8");
-    decrypted += decipher.final("utf-8");
-    return decrypted;
-  } catch (error) {
-    console.error("Decryption failed:", error.message);
-    throw error;
-  }
+  const decipher = crypto.createDecipheriv(
+    encryptMethod,
+    secret,
+    Buffer.from(iv, "base64")
+  );
+
+  let decrypted = decipher.update(encryptedData, "base64", "utf-8");
+  decrypted += decipher.final("utf-8");
+
+  return decrypted;
 }
 
 const verifyUser = async (req, res) => {
