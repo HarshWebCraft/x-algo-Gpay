@@ -13,7 +13,7 @@ const signup = async (req, res) => {
   try {
     const url =
       process.env.NODE_ENV === "production"
-        ? "https://x-algo-gpay.onrender.com"
+        ? "https://xalgos.netlify.app"
         : "http://localhost:3000";
 
     const data = {
@@ -63,7 +63,7 @@ const signup = async (req, res) => {
       console.log("asdasd");
 
       // const verificationLink = `${url}/verifyemail?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
-      const verificationLink = `${url}/verifyemail?email=${encodeURIComponent(
+      const verificationLink = `${url}/verify-email?email=${encodeURIComponent(
         encryptedData.encryptedData
       )}&iv=${encodeURIComponent(encryptedData.iv)}`;
 
