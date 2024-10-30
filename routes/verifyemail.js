@@ -20,30 +20,44 @@ function decrypt(encryptedData, secret, iv) {
 
   return decrypted;
 }
-
 const verifyUser = async (req, res) => {
-  const decryptedData = decrypt(req.body.urlEmail, secretKey, req.body.iv);
-  console.log("Decrypted:", decryptedData);
-  console.log(req.body.urlEmail);
+  console.log("Request Body:", req.body);
 
-  const user = await User.findOne({ Email: decryptedData });
-  // console.log(user)
-  if (user) {
-    const update = await User.updateOne(
-      { Email: decryptedData },
-      {
-        $set: {
-          Verification: true,
-          Name: req.body.name,
-          Password: req.body.password,
-          MobileNo: req.body.mobileNumber,
-        },
-      }
-    );
-    console.log(update);
-    return res.json({ message: "password is set" });
-  } else {
-    return res.json({ message: "password is not set" });
+  if (!req.body.urlEmail || !req.body.iv) {
+    console.error("urlEmail or iv is missing in the request body");
+    return res.status(400).json({ message: "Invalid request data" });
+  }
+
+  if (!secretKey) {
+    console.error("Secret key is not defined in environment variables");
+    return res.status(500).json({ message: "Server configuration error" });
+  }
+
+  try {
+    const decryptedData = decrypt(req.body.urlEmail, secretKey, req.body.iv);
+    console.log("Decrypted:", decryptedData);
+
+    const user = await User.findOne({ Email: decryptedData });
+    if (user) {
+      const update = await User.updateOne(
+        { Email: decryptedData },
+        {
+          $set: {
+            Verification: true,
+            Name: req.body.name,
+            Password: req.body.password,
+            MobileNo: req.body.mobileNumber,
+          },
+        }
+      );
+      console.log(update);
+      return res.json({ message: "password is set" });
+    } else {
+      return res.json({ message: "password is not set" });
+    }
+  } catch (error) {
+    console.error("Decryption or database error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
