@@ -23,8 +23,8 @@ function decrypt(encryptedData, secret, iv) {
 
 const verifyUser = async (req, res) => {
   // For handling data from query params (URL) and body if sent through JSON
-  const encryptedEmail = req.query.email || req.body.urlEmail;
-  const iv = req.query.iv || req.body.iv;
+  const encryptedEmail = req.body.urlEmail;
+  const iv = req.body.iv;
 
   console.log("Encrypted Email:", encryptedEmail);
   console.log("IV:", iv);
@@ -55,7 +55,7 @@ const verifyUser = async (req, res) => {
             Verification: true,
             Name: req.body.name,
             Password: req.body.password,
-            MobileNo: req.body.mobileNumber,
+            MobileNo: "+91 8849439366",
           },
         }
       );

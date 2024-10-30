@@ -76,7 +76,7 @@ app.post("/dbschema", dbschema);
 app.post("/removeClient", removeClient);
 app.post("/wbSocket", wbSocket);
 app.post("/getSymbol", getSymbole);
-app.get("/verifyemail", verifyemail);
+app.post("/verifyemail", verifyemail);
 app.post("/add-excel-data", addExcelData);
 app.post("/resetPassword", resetPassword);
 app.post("/forgetPassword", forgetPassword);
