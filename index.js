@@ -215,7 +215,7 @@ const getPreviousData = async () => {
     );
 
     const close = formattedData[0].close;
-    const flag = close * 0.02;
+    const flag = close * 0.015;
     const target = close + flag;
     const negativeTarget = close - flag;
 
