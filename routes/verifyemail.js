@@ -1,9 +1,9 @@
 const User = require("../models/users");
-
 const crypto = require("crypto");
+
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-} // Load environment variables from .env file
+  require("dotenv").config(); // Load environment variables from .env file
+}
 
 const secretKey = process.env.SECRET_KEY;
 const encryptMethod = "AES-256-CBC";
@@ -20,11 +20,17 @@ function decrypt(encryptedData, secret, iv) {
 
   return decrypted;
 }
-const verifyUser = async (req, res) => {
-  console.log("Request Body:", req.body);
 
-  if (!req.body.urlEmail || !req.body.iv) {
-    console.error("urlEmail or iv is missing in the request body");
+const verifyUser = async (req, res) => {
+  // For handling data from query params (URL) and body if sent through JSON
+  const encryptedEmail = req.query.email || req.body.urlEmail;
+  const iv = req.query.iv || req.body.iv;
+
+  console.log("Encrypted Email:", encryptedEmail);
+  console.log("IV:", iv);
+
+  if (!encryptedEmail || !iv) {
+    console.error("urlEmail or iv is missing in the request");
     return res.status(400).json({ message: "Invalid request data" });
   }
 
@@ -34,13 +40,16 @@ const verifyUser = async (req, res) => {
   }
 
   try {
-    const decryptedData = decrypt(req.body.urlEmail, secretKey, req.body.iv);
-    console.log("Decrypted:", decryptedData);
+    // Decrypt the email using the provided IV and secret key
+    const decryptedEmail = decrypt(encryptedEmail, secretKey, iv);
+    console.log("Decrypted Email:", decryptedEmail);
 
-    const user = await User.findOne({ Email: decryptedData });
+    // Look for the user in the database by decrypted email
+    const user = await User.findOne({ Email: decryptedEmail });
     if (user) {
+      // Update user's info as requested
       const update = await User.updateOne(
-        { Email: decryptedData },
+        { Email: decryptedEmail },
         {
           $set: {
             Verification: true,
@@ -50,10 +59,10 @@ const verifyUser = async (req, res) => {
           },
         }
       );
-      console.log(update);
-      return res.json({ message: "password is set" });
+      console.log("Update Result:", update);
+      return res.json({ message: "Password is set and verification complete" });
     } else {
-      return res.json({ message: "password is not set" });
+      return res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
     console.error("Decryption or database error:", error);
