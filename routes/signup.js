@@ -43,7 +43,11 @@ const signup = async (req, res) => {
         console.log("inserted new user to database");
       });
 
-      const secretKey = process.env.SECRET_KEY;
+      const secretKey = crypto
+        .createHash("sha256")
+        .update(process.env.SECRET_KEY)
+        .digest("base64")
+        .substr(0, 32);
       const encryptMethod = "AES-256-CBC";
 
       function encrypt(text, secret) {
