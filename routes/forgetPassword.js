@@ -1,38 +1,41 @@
-
-const User = require('../models/users')
-const nodemailer = require('nodemailer');
-const base64url = require('base64url');
+const User = require("../models/users");
+const nodemailer = require("nodemailer");
+const base64url = require("base64url");
 
 const resetPassword = async (req, res) => {
+  const url =
+    process.env.NODE_ENV === "production"
+      ? "https://xalgos.netlify.app"
+      : "http://localhost:3000";
 
-    console.log(req.body.email)
-    const email=req.body.email
-    const checking = await User.findOne({ Email: req.body.email });
-    if (checking) {
-        const expiryTime = Date.now() + 3600000;
-        const payload = {
-            email: email,
-            expiry: expiryTime
-        };
-        // Encode payload
-        const encodedPayload = base64url.encode(JSON.stringify(payload));
-        const verificationLink = `http://localhost:3000/resetPassword?token=${encodeURIComponent(encodedPayload)}`
+  console.log(req.body.email);
+  const email = req.body.email;
+  const checking = await User.findOne({ Email: req.body.email });
+  if (checking) {
+    const expiryTime = Date.now() + 3600000;
+    const payload = {
+      email: email,
+      expiry: expiryTime,
+    };
+    // Encode payload
+    const encodedPayload = base64url.encode(JSON.stringify(payload));
+    const verificationLink = `${url}/resetPassword?token=${encodeURIComponent(
+      encodedPayload
+    )}`;
 
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "harshdvadhavana26@gmail.com",
+        pass: "sfai mxlq yera mfmh",
+      },
+    });
 
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: 'harshdvadhavana26@gmail.com',
-                pass: 'sfai mxlq yera mfmh'
-            }
-        });
-
-
-        const mailOptions = {
-            from: 'ayushsantoki1462004@gmail.com',
-            to: `${req.body.email}`,
-            subject: 'HTML Email Example',
-            html: `<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
+    const mailOptions = {
+      from: "ayushsantoki1462004@gmail.com",
+      to: `${req.body.email}`,
+      subject: "HTML Email Example",
+      html: `<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
             <!--100% body table-->
             <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
                 style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
@@ -87,27 +90,23 @@ const resetPassword = async (req, res) => {
                 </tr>
             </table>
             <!--/100% body table-->
-        </body>`
+        </body>`,
+    };
 
-        };
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error occurred:", error);
+      } else {
+        console.log("Email sent:", info.response);
+        return res.json({ email: data.email });
+      }
+    });
 
-        // Send email
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error('Error occurred:', error);
-            } else {
-                console.log('Email sent:', info.response);
-                return res.json({ email: data.email })
-            }
-        });
-    
-        res.json(true)
-    }
-    else{
-        res.json(false)
-    }
+    res.json(true);
+  } else {
+    res.json(false);
+  }
+};
 
-
-}
-
-module.exports = resetPassword
+module.exports = resetPassword;
