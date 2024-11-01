@@ -2,16 +2,20 @@ const User = require("../models/users");
 const crypto = require("crypto");
 
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config(); // Load environment variables from .env file
+  require("dotenv").config();
 }
 
-const secretKey = process.env.SECRET_KEY;
+const secretKey = crypto
+  .createHash("sha256")
+  .update(process.env.SECRET_KEY)
+  .digest("base64")
+  .substr(0, 32);
 const encryptMethod = "AES-256-CBC";
 
 function decrypt(encryptedData, secret, iv) {
   const decipher = crypto.createDecipheriv(
     encryptMethod,
-    secret,
+    Buffer.from(secret, "utf-8"),
     Buffer.from(iv, "base64")
   );
 
@@ -22,7 +26,6 @@ function decrypt(encryptedData, secret, iv) {
 }
 
 const verifyUser = async (req, res) => {
-  // For handling data from query params (URL) and body if sent through JSON
   const encryptedEmail = req.body.urlEmail;
   const iv = req.body.iv;
 
@@ -34,20 +37,12 @@ const verifyUser = async (req, res) => {
     return res.status(400).json({ message: "Invalid request data" });
   }
 
-  if (!secretKey) {
-    console.error("Secret key is not defined in environment variables");
-    return res.status(500).json({ message: "Server configuration error" });
-  }
-
   try {
-    // Decrypt the email using the provided IV and secret key
     const decryptedEmail = decrypt(encryptedEmail, secretKey, iv);
     console.log("Decrypted Email:", decryptedEmail);
 
-    // Look for the user in the database by decrypted email
     const user = await User.findOne({ Email: decryptedEmail });
     if (user) {
-      // Update user's info as requested
       const update = await User.updateOne(
         { Email: decryptedEmail },
         {
