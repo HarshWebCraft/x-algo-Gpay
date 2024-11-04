@@ -187,7 +187,10 @@ const addbroker = async (req, res) => {
           data: data,
         };
 
+        console.log("test 3");
         const response = await axios(config);
+
+        console.log("test 4");
 
         const jsonObject = JSON.parse(JSON.stringify(response.data));
         console.log(response.data.message);
