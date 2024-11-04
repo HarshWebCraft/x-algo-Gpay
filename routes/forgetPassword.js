@@ -8,16 +8,16 @@ const resetPassword = async (req, res) => {
       ? "https://xalgos.netlify.app"
       : "http://localhost:3000";
 
-  console.log(req.body.email);
   const email = req.body.email;
   const checking = await User.findOne({ Email: req.body.email });
+
   if (checking) {
     const expiryTime = Date.now() + 3600000;
     const payload = {
       email: email,
       expiry: expiryTime,
     };
-    // Encode payload
+
     const encodedPayload = base64url.encode(JSON.stringify(payload));
     const verificationLink = `${url}/resetPassword?token=${encodeURIComponent(
       encodedPayload

@@ -156,10 +156,13 @@ const addbroker = async (req, res) => {
         );
 
         console.log("after if and else");
+
         const totpCode = speakeasy.totp({
           secret: `${schema.SecretKey}`,
           encoding: "base32",
         });
+
+        console.log("test 2");
 
         var data = JSON.stringify({
           clientcode: `${schema.AngelId}`,
