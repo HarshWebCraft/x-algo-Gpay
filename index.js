@@ -283,7 +283,7 @@ const startWebSocket = (close, target, jwtToken, feedToken, negativeTarget) => {
     }
   };
 
-  wss = new WebSocket.Server({ port: 3002 });
+  wss = new WebSocket.Server({ server });
 
   wss.on("close", () => {
     console.log("WebSocket Server Closed");
