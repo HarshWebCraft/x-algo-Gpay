@@ -240,14 +240,14 @@ const startWebSocket = (close, target, jwtToken, feedToken, negativeTarget) => {
         clientcode: clientcode,
         feedtype: feedToken,
       });
-
+      // CRUDEOIL16DEC244700PE
       await web_socket.connect();
       const json_req = {
         correlationID: "abcde12345",
         action: 1,
         mode: 1,
-        exchangeType: 1,
-        tokens: [`26000`],
+        exchangeType: 5,
+        tokens: [`439911`],
       };
 
       web_socket.fetchData(json_req);
