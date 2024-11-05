@@ -215,8 +215,8 @@ const getPreviousData = async () => {
 
     const close = formattedData[0].close;
     const flag = close * 0.015;
-    const target = close * 1.05;
-    const negativeTarget = close * 0.9999;
+    const target = close * 20;
+    const negativeTarget = close * 9999;
 
     startWebSocket(close, target, jwtToken, feedToken, negativeTarget);
   } catch (error) {
