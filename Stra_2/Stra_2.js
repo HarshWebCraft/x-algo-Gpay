@@ -96,7 +96,7 @@ const getPreviousData = async () => {
     );
 
     const close = formattedData[0].close;
-    const target = close * 1.05;
+    const target = close * 1.1;
     const negativeTarget = close * 9.999;
 
     startWebSocket(close, target, jwtToken, feedToken, negativeTarget);
