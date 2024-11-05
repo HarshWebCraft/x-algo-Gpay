@@ -262,13 +262,13 @@ const startWebSocket = (close, target, jwtToken, feedToken, negativeTarget) => {
           negativeTarget
         );
 
-        if (
-          data.last_traded_price / 100 > target ||
-          data.last_traded_price / 100 < negativeTarget
-        ) {
-          sendEmail();
-          web_socket.close();
-        }
+        // if (
+        //   data.last_traded_price / 100 > target ||
+        //   data.last_traded_price / 100 < negativeTarget
+        // ) {
+        //   sendEmail();
+        //   web_socket.close();
+        // }
 
         if (wss) {
           wss.clients.forEach((client) => {
