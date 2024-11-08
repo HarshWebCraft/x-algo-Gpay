@@ -112,9 +112,15 @@ app.get("/close", (req, res) => {
   if (web_socket) {
     web_socket.close();
     console.log("WebSocket connection closed");
-    res.send("WebSocket connection closed");
+  }
+
+  if (wss) {
+    wss.close(() => {
+      console.log("WebSocket Server Closed");
+      res.send("WebSocket server and connection closed");
+    });
   } else {
-    res.status(400).send("No WebSocket connection to close");
+    res.status(400).send("No WebSocket server to close");
   }
 });
 
@@ -283,7 +289,7 @@ const startWebSocket = (close, target, jwtToken, feedToken, negativeTarget) => {
     }
   };
 
-  wss = new WebSocket.Server({ server });
+  wss = new WebSocket.Server({ port: 8080 });
 
   wss.on("close", () => {
     console.log("WebSocket Server Closed");
