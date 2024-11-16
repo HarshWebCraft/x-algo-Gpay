@@ -30,6 +30,7 @@ const updateSubscribe = async (req, res) => {
     res.status(200).json({
       newSubscribeCount: updatedStrategy.subscribeCount,
       SubscribedStrategies: updatedUser.SubscribedStrategies,
+      userSchema: updatedUser,
     });
   } catch (e) {
     console.error("Error in updateSubscribe.js ", e);

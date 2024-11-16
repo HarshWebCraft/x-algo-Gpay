@@ -47,9 +47,11 @@ const subscribe = require("./routes/subscribe");
 const addMarketPlaceData = require("./routes/addMarketPlaceData.js");
 const getMarketPlace = require("./routes/getMarketPlace.js");
 const updateSubscribe = require("./routes/updateSubscribe.js");
+const removeSubscribe = require("./routes/removeSubscribe.js");
 
 require("./models/users");
 app.use(cors());
+
 app.get("/server/test", (req, res) => {
   res.json("hello world 2 " + Date.now());
 });
@@ -98,6 +100,7 @@ app.post("/subscribe", subscribe);
 app.post("/addMarketPlaceData", addMarketPlaceData);
 app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
+app.post("/removeSubscribe", removeSubscribe);
 
 app.get("/start", (req, res) => {
   getPreviousData()
