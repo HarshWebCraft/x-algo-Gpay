@@ -9,7 +9,7 @@ node_modules
 /coverage
 
 .env
-# Google_sheet.json
+Google_sheet.json
 
 
 
