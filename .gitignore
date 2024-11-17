@@ -8,6 +8,9 @@ node_modules
 # testing
 /coverage
 
+Google_sheet.json
+
+
 # production
 build
 
