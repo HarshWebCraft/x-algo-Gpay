@@ -5,12 +5,12 @@ const { placeOrder } = require("../paper trade/placeOrder.js");
 const WebSocket = require("ws");
 
 // Define user input
-const candleTime = "19:08";
-const timeFrame = "1m";
+const candleTime = "05:00";
+const timeFrame = "30m";
 const symbol = "BTCUSD";
 const quantity = 10;
-const stop_loss_point = 10;
-const take_profit_point = 10;
+const stop_loss_point = 50;
+const take_profit_point = 100;
 
 const strategy = () => {
   function toUnixTimestamp(dateStr, format = "YYYY-MM-DD HH:mm:ss") {
