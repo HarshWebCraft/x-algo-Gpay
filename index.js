@@ -9,6 +9,7 @@ const http = require("http");
 let web_socket; // Declare the WebSocket instance globally
 let wss; // Declare the WebSocket server instance globally
 const server = http.createServer(app);
+require("dotenv").config();
 
 const BrokerSchema = require("./models/users");
 // const strategy = require("./routes/strategy.js");
@@ -55,8 +56,7 @@ require("./models/users");
 app.use(cors());
 
 app.get("/server/test", (req, res) => {
-  console.log(process.env.GOOGLE_CREDENTIALS);
-  console.log(googleCredentials);
+  console.log(JSON.parse(process.env.GOOGLE_CREDENTIALS));
 
   res.json("hello world 2 " + Date.now());
 });
