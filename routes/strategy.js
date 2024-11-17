@@ -5,7 +5,7 @@ const { placeOrder } = require("../paper trade/placeOrder.js");
 const WebSocket = require("ws");
 
 // Define user input
-const candleTime = "16:10";
+const candleTime = "16:30";
 const timeFrame = "30m";
 const symbol = "BTCUSD";
 const quantity = 10;
@@ -13,7 +13,6 @@ const stop_loss_point = 10;
 const take_profit_point = 10;
 
 const strategy = () => {
-  // Function to convert normal date and time to Unix timestamp
   function toUnixTimestamp(dateStr, format = "YYYY-MM-DD HH:mm:ss") {
     return moment(dateStr, format).unix();
   }

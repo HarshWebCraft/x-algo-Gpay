@@ -55,6 +55,9 @@ require("./models/users");
 app.use(cors());
 
 app.get("/server/test", (req, res) => {
+  console.log(process.env.GOOGLE_CREDENTIALS);
+  console.log(googleCredentials);
+
   res.json("hello world 2 " + Date.now());
 });
 app.use(bodyParser.json());
