@@ -11,6 +11,8 @@ let wss; // Declare the WebSocket server instance globally
 const server = http.createServer(app);
 
 const BrokerSchema = require("./models/users");
+// const strategy = require("./routes/strategy.js");
+
 const signup = require("./routes/signup");
 const signin = require("./routes/signin");
 const addbroker = require("./routes/addbroker");
@@ -25,7 +27,7 @@ const getSymbole = require("./websocket/getSymbol");
 const saveUserData = require("./saveUserData");
 const axios = require("axios");
 const { WebSocket } = require("ws");
-const strategy_1 = require("./routes/strategy_1");
+const strategy = require("./routes/strategy");
 const addExcelData = require("./createExcel/createExcel");
 const resetPassword = require("./routes/resetPassword");
 const forgetPassword = require("./routes/forgetPassword");
@@ -101,6 +103,14 @@ app.post("/addMarketPlaceData", addMarketPlaceData);
 app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
 app.post("/removeSubscribe", removeSubscribe);
+
+app.get("/strategy_1", (req, res) => {
+  res.status(200).json({ message: "Strategy scheduled successfully." });
+
+  setTimeout(() => {
+    strategy();
+  }, 0);
+});
 
 app.get("/start", (req, res) => {
   getPreviousData()
