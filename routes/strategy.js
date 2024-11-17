@@ -5,8 +5,8 @@ const { placeOrder } = require("../paper trade/placeOrder.js");
 const WebSocket = require("ws");
 
 // Define user input
-const candleTime = "18:25";
-const timeFrame = "30m";
+const candleTime = "19:08";
+const timeFrame = "1m";
 const symbol = "BTCUSD";
 const quantity = 10;
 const stop_loss_point = 10;
