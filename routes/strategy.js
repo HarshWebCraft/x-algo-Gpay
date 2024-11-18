@@ -9,8 +9,8 @@ const candleTime = "05:00";
 const timeFrame = "30m";
 const symbol = "BTCUSD";
 const quantity = 10;
-const stop_loss_point = 50;
-const take_profit_point = 100;
+const stop_loss_point = 300;
+const take_profit_point = 300;
 
 const strategy = () => {
   function toUnixTimestamp(dateStr, format = "YYYY-MM-DD HH:mm:ss") {
