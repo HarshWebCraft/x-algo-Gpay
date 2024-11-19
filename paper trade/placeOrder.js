@@ -30,7 +30,6 @@ const placeOrder = (order) => {
   return trade;
 };
 
-// Function to handle price updates and update all trades
 function handlePriceUpdate(symbol, spotPrice, closeWebsocket) {
   console.log(`Latest Spot Price for ${symbol}: ${spotPrice} $`);
 
