@@ -51,6 +51,7 @@ const addMarketPlaceData = require("./routes/addMarketPlaceData.js");
 const getMarketPlace = require("./routes/getMarketPlace.js");
 const updateSubscribe = require("./routes/updateSubscribe.js");
 const removeSubscribe = require("./routes/removeSubscribe.js");
+const strategy_2 = require("./Stra_2/Stra_2.js");
 
 require("./models/users");
 app.use(cors());
@@ -112,6 +113,14 @@ app.get("/strategy_1", (req, res) => {
 
   setTimeout(() => {
     strategy();
+  }, 0);
+});
+
+app.get("/strategy_2", (req, res) => {
+  res.status(200).json({ message: "Strategy_2 scheduled successfully." });
+
+  setTimeout(() => {
+    strategy_2();
   }, 0);
 });
 

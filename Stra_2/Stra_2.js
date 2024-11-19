@@ -1,224 +1,192 @@
-const speakeasy = require("speakeasy");
 const axios = require("axios");
+const fs = require("fs");
 const WebSocket = require("ws");
-const http = require("http");
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const cors = require("cors");
-let web_socket; // Declare the WebSocket instance globally
-let wss; // Declare the WebSocket server instance globally
+const { placeOrder } = require("../paper trade/placeOrder.js");
 
-const secretKey = "UUGDXH753M4H5FS5HJVIGBSSSU";
-const clientcode = "R51644670";
-const password = "3250";
-const apiKey = "xL9TyAO8";
-const privateKey = "xL9TyAO8";
-const server = http.createServer(app);
+const quantity = 10;
 
-const getPreviousData = async () => {
-  const totpCode = speakeasy.totp({
-    secret: secretKey,
-    encoding: "base32",
-  });
+const strategy_2 = () => {
+  function toUnixTimestamp(dateStr, format = "%Y-%m-%d %H:%M:%S") {
+    const date = new Date(dateStr);
+    return Math.floor(date.getTime() / 1000);
+  }
 
-  const data = JSON.stringify({
-    clientcode: clientcode,
-    password: password,
-    totp: `${totpCode}`,
-  });
+  // Function to convert Unix timestamp to normal date and time, adjusted for local time zone
+  function fromUnixTimestamp(unixTimestamp, offsetHours = 0) {
+    const utcDate = new Date(unixTimestamp * 1000);
+    const localDate = new Date(
+      utcDate.getTime() + offsetHours * 60 * 60 * 1000
+    );
+    return localDate.toISOString().replace("T", " ").slice(0, 19);
+  }
 
-  const config = {
-    method: "post",
-    url: "https://apiconnect.angelbroking.com//rest/auth/angelbroking/user/v1/loginByPassword",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "X-UserType": "USER",
-      "X-SourceID": "WEB",
-      "X-ClientLocalIP": "192.168.43.238",
-      "X-ClientPublicIP": "106.193.147.98",
-      "X-MACAddress": "fe80::87f:98ff:fe5a:f5cb",
-      "X-PrivateKey": privateKey,
-    },
-    data: data,
+  // Define start and end time (normal date format)
+  const startTime = "2024-11-16 12:30:00";
+  const endTime = "2024-11-16 20:30:00";
+
+  // Convert normal date and time to Unix timestamp
+  const startUnix = toUnixTimestamp(startTime);
+  const endUnix = toUnixTimestamp(endTime);
+
+  // Define the headers for the API request
+  const headers = {
+    Accept: "application/json",
   };
 
-  try {
-    const response = await axios(config);
-    const responseData = response.data;
-    const jwtToken = responseData.data.jwtToken;
-    const feedToken = responseData.data.feedToken;
-
-    const fromDate = getPreviousDayFormattedDate();
-    const toDate = fromDate;
-
-    console.log("FromDate ", fromDate);
-    console.log("ToDate ", toDate);
-
-    const data2 = JSON.stringify({
-      exchange: "NSE",
-      symboltoken: "99926000",
-      interval: "ONE_DAY",
-      fromdate: fromDate,
-      todate: toDate,
-    });
-
-    const config2 = {
-      method: "post",
-      url: "https://apiconnect.angelbroking.com/rest/secure/angelbroking/historical/v1/getCandleData",
-      headers: {
-        "X-PrivateKey": privateKey,
-        Accept: "application/json",
-        "X-SourceID": "WEB",
-        "X-ClientLocalIP": "192.168.43.238",
-        "X-ClientPublicIP": "106.193.147.98",
-        "X-MACAddress": "fe80::87f:98ff:fe5a:f5cb",
-        "X-UserType": "USER",
-        Authorization: `Bearer ${jwtToken}`,
-        "Content-Type": "application/json",
+  // Send the GET request to the Delta Exchange API
+  axios
+    .get("https://api.india.delta.exchange/v2/history/candles", {
+      params: {
+        resolution: "5m", // 15-minute interval
+        symbol: "BTCUSD",
+        start: startUnix,
+        end: endUnix,
       },
-      data: data2,
-    };
+      headers: headers,
+    })
+    .then((response) => {
+      const data = response.data;
 
-    const ceresponse = await axios(config2);
-    const jsonData = ceresponse.data;
-    console.log(jsonData);
-    const formattedData = jsonData.data.map(
-      ([timestamp, open, high, low, close, volume]) => ({
-        timestamp,
-        open,
-        high,
-        low,
-        close,
-        volume,
-      })
-    );
+      // Define the local time zone offset (e.g., UTC+5:30 for IST)
+      const localTimeOffset = 5.5; // Example for IST
 
-    const close = formattedData[0].close;
-    const target = close * 1.1;
-    const negativeTarget = close * 9.999;
+      // Create a list to store OHLC data
+      const ohlcData = [];
 
-    startWebSocket(close, target, jwtToken, feedToken, negativeTarget);
-  } catch (error) {
-    console.log("Error fetching data:", error);
-  }
-};
+      // Convert response timestamps to normal date and time, adjusting for local time zone
+      if (data.result) {
+        data.result.forEach((candle) => {
+          const openPrice = parseFloat(candle.open);
+          const highPrice = parseFloat(candle.high);
+          const lowPrice = parseFloat(candle.low);
+          const closePrice = parseFloat(candle.close);
+          const time = fromUnixTimestamp(candle.time, localTimeOffset); // Adjust time to local time zone
 
-// Function to start WebSocket server and connect
-const startWebSocket = (close, target, jwtToken, feedToken, negativeTarget) => {
-  const { WebSocketV2 } = require("smartapi-javascript");
+          // Append OHLC data with timestamp to the list
+          ohlcData.push({
+            time: time,
+            open: openPrice,
+            high: highPrice,
+            low: lowPrice,
+            close: closePrice,
+          });
+        });
+      }
 
-  const fetchDataAndConnectWebSocket = async () => {
-    try {
-      console.log("Previous day close", close);
-      console.log("Target for positive ", target);
-      console.log("Target for nagative ", negativeTarget);
+      // Write the OHLC data to a JSON file
+      fs.writeFileSync(
+        "./Stra_2/ohlc_data.json",
+        JSON.stringify(ohlcData, null, 4)
+      );
 
-      web_socket = new WebSocketV2({
-        jwttoken: jwtToken,
-        apikey: apiKey,
-        clientcode: clientcode,
-        feedtype: feedToken,
+      console.log("OHLC data has been saved to ohlc_data.json.");
+
+      // Initialize variables for the highest high and lowest low
+      let highestHigh = Number.MIN_VALUE;
+      let lowestLow = Number.MAX_VALUE;
+
+      // Iterate through the OHLC data to find the highest high and lowest low
+      ohlcData.forEach((candle) => {
+        if (candle.high > highestHigh) {
+          highestHigh = candle.high;
+        }
+        if (candle.low < lowestLow) {
+          lowestLow = candle.low;
+        }
       });
 
-      await web_socket.connect();
-      const json_req = {
-        correlationID: "abcde12345",
-        action: 1,
-        mode: 1,
-        exchangeType: 1,
-        tokens: [`26000`],
-      };
+      // Output the results
+      console.log(`Highest High: ${highestHigh}`);
+      console.log(`Lowest Low: ${lowestLow}`);
 
-      web_socket.fetchData(json_req);
-      web_socket.on("tick", receiveTick);
+      EntryAlert("BTCUSD", highestHigh, lowestLow);
+    })
+    .catch((error) => {
+      console.error("Error fetching data from API:", error.message);
+    });
+};
 
-      function receiveTick(data) {
-        console.log(
-          data.last_traded_price / 100,
-          " Target ",
-          target,
-          " NegativeTarget ",
-          negativeTarget / 10
-        );
+function EntryAlert(symbol, buyEntry, sellEntry) {
+  const WS_URL = "wss://socket.india.delta.exchange";
 
-        if (
-          data.last_traded_price / 100 > target ||
-          data.last_traded_price / 100 < negativeTarget / 10
-        ) {
-          sendEmail();
-          web_socket.close();
+  const subscribeMessage = JSON.stringify({
+    type: "subscribe",
+    payload: {
+      channels: [{ name: "candlestick_1m", symbols: [symbol] }],
+    },
+  });
+
+  const ws = new WebSocket(WS_URL);
+
+  // Event listener: Triggered when the WebSocket connection is opened
+  ws.on("open", () => {
+    console.log("Connected to WebSocket.");
+    // Send the subscription message after connection is established
+    ws.send(subscribeMessage);
+  });
+
+  // Event listener: Triggered whenever a message is received from the WebSocket
+  ws.on("message", (message) => {
+    try {
+      // Parse the incoming message as JSON
+      const data = JSON.parse(message);
+      // console.log(data);
+      // Extract 'symbol' and 'spot_price' if available
+      const symbol = data.symbol;
+      const spotPrice = data.close;
+
+      // Print 'symbol' and 'spot_price' if they exist
+      if (symbol && spotPrice) {
+        console.log(`${symbol} : ${spotPrice}`);
+
+        if (buyEntry < spotPrice) {
+          console.log("------ buy alert ------");
+          placeOrder({
+            symbol: symbol,
+            size: quantity,
+            side: "buy",
+            order_type: "market_order",
+            // "limit_price": "59000",
+            take_profit_point: buyEntry * 0.01,
+            stop_loss_point: buyEntry * 0.005,
+          });
+          ws.close();
         }
-
-        if (wss) {
-          wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(JSON.stringify(data));
-            }
+        if (sellEntry > spotPrice) {
+          console.log("------ sell alert ------");
+          ws.close();
+          placeOrder({
+            symbol: symbol,
+            size: quantity,
+            side: "sell",
+            order_type: "market_order",
+            // "limit_price": "59000",
+            take_profit_point: sellEntry * 0.01,
+            stop_loss_point: sellEntry * 0.005,
           });
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error parsing message:", error);
     }
-  };
-
-  wss = new WebSocket.Server({ server });
-
-  wss.on("close", () => {
-    console.log("WebSocket Server Closed");
   });
 
-  fetchDataAndConnectWebSocket();
-};
-
-// Function to get the previous day's date formatted
-const getPreviousDayFormattedDate = () => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  yesterday.setHours(15, 29, 0, 0);
-
-  const year = yesterday.getFullYear();
-  const month = String(yesterday.getMonth() + 1).padStart(2, "0");
-  const day = String(yesterday.getDate()).padStart(2, "0");
-  const hours = String(yesterday.getHours()).padStart(2, "0");
-  const minutes = String(yesterday.getMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
-
-// Function to send email alert
-const sendEmail = () => {
-  console.log(
-    "Sending email to user: Market price exceeded +5% of previous day's close."
-  );
-
-  const nodemailer = require("nodemailer");
-
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "harshdvadhavana26@gmail.com",
-      pass: "cjlt acjg ymwe apzn",
-    },
+  // Event listener: Handles WebSocket errors
+  ws.on("error", (error) => {
+    console.error("WebSocket error:", error);
   });
 
-  const mailOptions = {
-    from: "harshdvadhavana26@gmail.com",
-    to: "harshkumar.vadhavana120072@marwadiuniversity.ac.in",
-    subject: "Market Price Alert",
-    text: "Market price exceeded +5% of previous day's close.",
-    html: "<b>Market price exceeded +5% of previous day's close.</b>",
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return console.log("Error while sending email: ", error);
-    }
-    console.log("Email sent: " + info.response);
+  // Event listener: Triggered when the WebSocket connection is closed
+  ws.on("close", () => {
+    console.log("WebSocket connection closed.");
   });
-};
+}
 
-module.exports = getPreviousData;
+module.exports = strategy_2;
+
+// const ohlcData = JSON.parse(fs.readFileSync("ohlc_data.json", "utf8"));
+
+// 1. 20:40 fetch london session OHLC and buy_entry = highestHigh sell_entry = lowestLow
+// 2. 20:46 fetch OHLC of 20:30 - 20:44 15m candle
+// 3. tp = 1% of high of 20:30 candle and sl = 0.5%
+// 4. websocket to check entry

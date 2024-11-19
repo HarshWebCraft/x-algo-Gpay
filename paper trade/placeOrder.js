@@ -2,8 +2,16 @@
 
 const PaperTrade = require("./PaperTrade");
 const setupWebSocket = require("./websocket");
+const { Server } = require("socket.io");
 
 let openTrades = [];
+
+const io = new Server(3001, {
+  cors: {
+    origin: "https://xalgos.in", // Replace with your Netlify URL
+    methods: ["GET", "POST"],
+  },
+});
 
 // Function to open a new trade using the order object
 const placeOrder = (order) => {
@@ -37,6 +45,13 @@ function handlePriceUpdate(symbol, spotPrice, closeWebsocket) {
         console.log(
           `Running P&L for ${trade.side} trade: ${trade.runningPnL} $`
         );
+
+        io.emit("updatePnL", {
+          symbol: trade.symbol,
+          side: trade.side,
+          runningPnL: trade.runningPnL,
+        });
+
         trade.checkExitConditions(spotPrice, closeWebsocket);
 
         // Remove closed trades from openTrades
