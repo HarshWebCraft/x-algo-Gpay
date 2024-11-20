@@ -6,9 +6,10 @@ const { Server } = require("socket.io");
 
 let openTrades = [];
 
-const io = new Server(3001, {
+const PORT = process.env.PORT || 3001;
+const io = require("socket.io")(PORT, {
   cors: {
-    origin: "https://xalgos.in", // Replace with your Netlify URL
+    origin: "https://xalgos.netlify.app", // Replace with your Netlify URL
     methods: ["GET", "POST"],
   },
 });
@@ -62,4 +63,4 @@ function handlePriceUpdate(symbol, spotPrice, closeWebsocket) {
 }
 
 // Export the placeOrder function so it can be used in other files
-module.exports = { placeOrder };
+module.exports = { placeOrder, openTrades };

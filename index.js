@@ -10,6 +10,7 @@ let web_socket; // Declare the WebSocket instance globally
 let wss; // Declare the WebSocket server instance globally
 const server = http.createServer(app);
 require("dotenv").config();
+const { openTrades } = require("./paper trade/placeOrder.js");
 
 const BrokerSchema = require("./models/users");
 // const strategy = require("./routes/strategy.js");
@@ -107,6 +108,15 @@ app.post("/addMarketPlaceData", addMarketPlaceData);
 app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
 app.post("/removeSubscribe", removeSubscribe);
+
+app.get("/api/live-pnl", (req, res) => {
+  const pnlData = openTrades.map((trade) => ({
+    symbol: trade.symbol,
+    side: trade.side,
+    runningPnL: trade.runningPnL,
+  }));
+  res.json(pnlData);
+});
 
 app.get("/strategy_1", (req, res) => {
   res.status(200).json({ message: "Strategy scheduled successfully." });
