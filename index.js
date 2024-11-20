@@ -165,8 +165,6 @@ app.listen(port, () => {
 
 // --------------------------------------------------------------------------------------------------------------------- //
 
-// Start the HTTP server
-
 // Constants for login credentials and API keys
 const secretKey = "UUGDXH753M4H5FS5HJVIGBSSSU";
 const clientcode = "R51644670";
