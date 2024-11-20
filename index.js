@@ -73,7 +73,7 @@ mongoose
     console.log("Error is " + e);
   });
 
-const port = process.env.port || 4000;
+const port = process.env.port || 5000;
 
 app.post("/signup", signup);
 app.post("/signin", signin);
