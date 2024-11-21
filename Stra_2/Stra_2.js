@@ -1,7 +1,8 @@
 const axios = require("axios");
 const fs = require("fs");
 const WebSocket = require("ws");
-const { placeOrder } = require("../paper trade/placeOrder.js");
+const schedule = require("node-schedule"); // Scheduler library
+const { placeOrder } = require("../paper trade/placeOrder");
 
 const quantity = 10;
 
@@ -11,7 +12,6 @@ const strategy_2 = () => {
     return Math.floor(date.getTime() / 1000);
   }
 
-  // Function to convert Unix timestamp to normal date and time, adjusted for local time zone
   function fromUnixTimestamp(unixTimestamp, offsetHours = 0) {
     const utcDate = new Date(unixTimestamp * 1000);
     const localDate = new Date(
@@ -20,20 +20,26 @@ const strategy_2 = () => {
     return localDate.toISOString().replace("T", " ").slice(0, 19);
   }
 
-  // Define start and end time (normal date format)
-  const startTime = "2024-11-16 12:30:00";
-  const endTime = "2024-11-16 20:30:00";
+  // Define start and end time dynamically for each execution
+  const now = new Date();
+  const startTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(now.getDate()).padStart(2, "0")} 12:30:00`;
+  const endTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(now.getDate()).padStart(2, "0")} 20:30:00`;
+  console.log(startTime);
+  console.log(endTime);
 
-  // Convert normal date and time to Unix timestamp
   const startUnix = toUnixTimestamp(startTime);
   const endUnix = toUnixTimestamp(endTime);
 
-  // Define the headers for the API request
   const headers = {
     Accept: "application/json",
   };
 
-  // Send the GET request to the Delta Exchange API
   axios
     .get("https://api.india.delta.exchange/v2/history/candles", {
       params: {
@@ -46,23 +52,17 @@ const strategy_2 = () => {
     })
     .then((response) => {
       const data = response.data;
-
-      // Define the local time zone offset (e.g., UTC+5:30 for IST)
       const localTimeOffset = 5.5; // Example for IST
-
-      // Create a list to store OHLC data
       const ohlcData = [];
 
-      // Convert response timestamps to normal date and time, adjusting for local time zone
       if (data.result) {
         data.result.forEach((candle) => {
           const openPrice = parseFloat(candle.open);
           const highPrice = parseFloat(candle.high);
           const lowPrice = parseFloat(candle.low);
           const closePrice = parseFloat(candle.close);
-          const time = fromUnixTimestamp(candle.time, localTimeOffset); // Adjust time to local time zone
+          const time = fromUnixTimestamp(candle.time, localTimeOffset);
 
-          // Append OHLC data with timestamp to the list
           ohlcData.push({
             time: time,
             open: openPrice,
@@ -73,29 +73,23 @@ const strategy_2 = () => {
         });
       }
 
-      // Write the OHLC data to a JSON file
-      fs.writeFileSync(
-        "./Stra_2/ohlc_data.json",
-        JSON.stringify(ohlcData, null, 4)
-      );
+      fs.writeFileSync("./ohlc_data.json", JSON.stringify(ohlcData, null, 4));
 
       console.log("OHLC data has been saved to ohlc_data.json.");
 
-      // Initialize variables for the highest high and lowest low
       let highestHigh = Number.MIN_VALUE;
       let lowestLow = Number.MAX_VALUE;
 
-      // Iterate through the OHLC data to find the highest high and lowest low
       ohlcData.forEach((candle) => {
         if (candle.high > highestHigh) {
           highestHigh = candle.high;
+          console.log(highestHigh);
         }
         if (candle.low < lowestLow) {
           lowestLow = candle.low;
         }
       });
 
-      // Output the results
       console.log(`Highest High: ${highestHigh}`);
       console.log(`Lowest Low: ${lowestLow}`);
 
@@ -108,62 +102,59 @@ const strategy_2 = () => {
 
 function EntryAlert(symbol, buyEntry, sellEntry) {
   const WS_URL = "wss://socket.india.delta.exchange";
+  let lastCandleStartTime = null;
 
   const subscribeMessage = JSON.stringify({
     type: "subscribe",
     payload: {
-      channels: [{ name: "candlestick_1m", symbols: [symbol] }],
+      channels: [{ name: "candlestick_15m", symbols: [symbol] }],
     },
   });
 
   const ws = new WebSocket(WS_URL);
 
-  // Event listener: Triggered when the WebSocket connection is opened
   ws.on("open", () => {
     console.log("Connected to WebSocket.");
-    // Send the subscription message after connection is established
     ws.send(subscribeMessage);
   });
 
-  // Event listener: Triggered whenever a message is received from the WebSocket
   ws.on("message", (message) => {
     try {
-      // Parse the incoming message as JSON
       const data = JSON.parse(message);
-      // console.log(data);
-      // Extract 'symbol' and 'spot_price' if available
       const symbol = data.symbol;
       const spotPrice = data.close;
 
-      // Print 'symbol' and 'spot_price' if they exist
       if (symbol && spotPrice) {
-        console.log(`${symbol} : ${spotPrice}`);
+        if (data.candle_start_time !== lastCandleStartTime) {
+          lastCandleStartTime = data.candle_start_time;
+          console.log(
+            `Candle Start Time: ${data.candle_start_time} | Close: ${data.close}  Buy Entry: ${buyEntry} Sell Entry: ${sellEntry}`
+          );
 
-        if (buyEntry < spotPrice) {
-          console.log("------ buy alert ------");
-          placeOrder({
-            symbol: symbol,
-            size: quantity,
-            side: "buy",
-            order_type: "market_order",
-            // "limit_price": "59000",
-            take_profit_point: buyEntry * 0.01,
-            stop_loss_point: buyEntry * 0.005,
-          });
-          ws.close();
-        }
-        if (sellEntry > spotPrice) {
-          console.log("------ sell alert ------");
-          ws.close();
-          placeOrder({
-            symbol: symbol,
-            size: quantity,
-            side: "sell",
-            order_type: "market_order",
-            // "limit_price": "59000",
-            take_profit_point: sellEntry * 0.01,
-            stop_loss_point: sellEntry * 0.005,
-          });
+          if (data.close > buyEntry) {
+            console.log("------ buy alert ------");
+            placeOrder({
+              symbol: symbol,
+              size: quantity,
+              side: "buy",
+              order_type: "market_order",
+              take_profit_point: buyEntry * 0.01,
+              stop_loss_point: buyEntry * 0.005,
+            });
+            ws.close();
+          }
+          if (data.close < sellEntry) {
+            console.log("------ sell alert ------");
+            ws.close();
+            placeOrder({
+              symbol: symbol,
+              size: quantity,
+              side: "sell",
+              order_type: "market_order",
+              take_profit_point: sellEntry * 0.01,
+              stop_loss_point: sellEntry * 0.005,
+            });
+          }
         }
       }
     } catch (error) {
@@ -171,22 +162,18 @@ function EntryAlert(symbol, buyEntry, sellEntry) {
     }
   });
 
-  // Event listener: Handles WebSocket errors
   ws.on("error", (error) => {
     console.error("WebSocket error:", error);
   });
 
-  // Event listener: Triggered when the WebSocket connection is closed
   ws.on("close", () => {
     console.log("WebSocket connection closed.");
   });
 }
 
+schedule.scheduleJob("42 07 * * *", () => {
+  console.log("Running strategy at 20:45 PM.");
+  strategy_2();
+});
+
 module.exports = strategy_2;
-
-// const ohlcData = JSON.parse(fs.readFileSync("ohlc_data.json", "utf8"));
-
-// 1. 20:40 fetch london session OHLC and buy_entry = highestHigh sell_entry = lowestLow
-// 2. 20:46 fetch OHLC of 20:30 - 20:44 15m candle
-// 3. tp = 1% of high of 20:30 candle and sl = 0.5%
-// 4. websocket to check entry

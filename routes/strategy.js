@@ -5,7 +5,7 @@ const { placeOrder } = require("../paper trade/placeOrder.js");
 const WebSocket = require("ws");
 
 // Define user input
-const candleTime = "05:00";
+const candleTime = "05:30";
 const timeFrame = "30m";
 const symbol = "BTCUSD";
 const quantity = 10;
@@ -212,5 +212,7 @@ const strategy = () => {
     });
   }
 };
+
+strategy();
 
 module.exports = strategy;
