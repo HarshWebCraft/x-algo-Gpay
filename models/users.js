@@ -8,6 +8,11 @@ const BrokerSchema = new Schema({
   ApiKey: String,
 });
 
+const deltaBrokerSchema = new Schema({
+  deltaSecretKey: String,
+  deltaApiKey: String,
+});
+
 const DeployedSchema = new Schema({
   Strategy: Number,
   Index: String,
@@ -52,6 +57,7 @@ const userSchema = new Schema({
   Tour: Boolean,
   MyStartegies: [Number],
   BrokerData: [BrokerSchema],
+  DeltaBrokerSchema: [deltaBrokerSchema],
   DeployedData: [DeployedSchema],
   SubscribedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
 });
@@ -60,5 +66,7 @@ const User = mongoose.model("UserData", userSchema);
 
 module.exports = userSchema;
 module.exports = BrokerSchema;
+module.exports = deltaBrokerSchema;
 module.exports = transaction;
+
 module.exports = User;
