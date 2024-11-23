@@ -8,7 +8,7 @@ const quantity = 10;
 
 const strategy_2 = () => {
   const start = () => {
-    let tradeTriggered = false; // Flag to track if trade has been triggered
+    let tradeTriggered = false; 
     const now = new Date();
     const cutoffTime = new Date(
       now.getFullYear(),
