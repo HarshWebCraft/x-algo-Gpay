@@ -31,15 +31,19 @@ const fetchSheetData = async (req, res) => {
       range,
     });
 
-    const rows = response.data.values;
+    let rows = response.data.values;
     if (rows && rows.length) {
-      console.log("Sheet data:", rows);
+      // Remove the first row (header row)
+      rows = rows.slice(1);
+
+      console.log("Sheet data without the header:", rows);
     } else {
       console.log("No data found.");
     }
-    res.json(rows);
+    res.json(rows); // Send the response without the first row
   } catch (error) {
     console.error("Error fetching sheet data:", error);
+    res.status(500).json({ error: "Failed to fetch sheet data." });
   }
 };
 
