@@ -55,6 +55,7 @@ const removeSubscribe = require("./routes/removeSubscribe.js");
 const getUserBalance = require("./routes/addDeltaBroker.js");
 const strategy_2 = require("./Stra_2/Stra_2.js");
 const strategy_3 = require("./Stra_3/Stra_3.js");
+const fetchSheetData = require("./routes/fetchExcelData.js");
 
 require("./models/users");
 app.use(cors());
@@ -111,6 +112,7 @@ app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
 app.post("/removeSubscribe", removeSubscribe);
 app.post("/addDeltaBroker", getUserBalance);
+app.get("/fetchSheetData", fetchSheetData);
 
 app.get("/api/live-pnl", (req, res) => {
   const pnlData = openTrades.map((trade) => ({

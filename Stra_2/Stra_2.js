@@ -158,6 +158,7 @@ const strategy_2 = () => {
                 order_type: "market_order",
                 take_profit_point: buyEntry * 0.01,
                 stop_loss_point: buyEntry * 0.005,
+                strategy: 2,
               });
             }
 
@@ -173,6 +174,7 @@ const strategy_2 = () => {
                 order_type: "market_order",
                 take_profit_point: sellEntry * 0.01,
                 stop_loss_point: sellEntry * 0.005,
+                strategy: 2,
               });
             }
           }

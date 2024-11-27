@@ -20,6 +20,7 @@ class PaperTrade {
     this.tradeNumber = 1; // Increment this for each trade
     this.entryTime = null; // Timestamp for entry
     this.exitTime = null; // Timestamp for exit
+    this.strategy = order.strategy;
   }
 
   getISTTime() {
@@ -130,9 +131,22 @@ class PaperTrade {
     });
 
     const sheets = google.sheets({ version: "v4", auth });
-
-    const spreadsheetId = "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4"; // Replace with your Google Sheet ID
-    const range = "Sheet1!A1"; // Adjust range to your sheet's configuration
+    let spreadsheetId;
+    switch (this.strategy) {
+      case 1:
+        spreadsheetId = "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4";
+        break;
+      case 2:
+        spreadsheetId = "1duAldHS3kpMCavYaebHdMVvdqphTnwHxNPSLH5HJJoQ";
+        break;
+      case 3:
+        spreadsheetId = "1C6OOGOd_8aWKpaqSMOsYgGCTxnO6cYEQC-e-TMC_zcs";
+        break;
+      default:
+        console.error("Unknown strategy ID:", this.strategy);
+        return;
+    }
+    const range = "Sheet1!A2"; // Adjust range to your sheet's configuration
 
     const tradeData = [
       this.tradeNumber++,
