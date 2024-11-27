@@ -136,6 +136,7 @@ app.get("/strategy_2", (req, res) => {
     strategy_2();
   }, 0);
 });
+
 app.get("/strategy_3", (req, res) => {
   res.status(200).json({ message: "Strategy_2 scheduled successfully." });
 
