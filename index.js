@@ -52,7 +52,9 @@ const addMarketPlaceData = require("./routes/addMarketPlaceData.js");
 const getMarketPlace = require("./routes/getMarketPlace.js");
 const updateSubscribe = require("./routes/updateSubscribe.js");
 const removeSubscribe = require("./routes/removeSubscribe.js");
+const getUserBalance = require("./routes/addDeltaBroker.js");
 const strategy_2 = require("./Stra_2/Stra_2.js");
+const strategy_3 = require("./Stra_3/Stra_3.js");
 
 require("./models/users");
 app.use(cors());
@@ -108,6 +110,7 @@ app.post("/addMarketPlaceData", addMarketPlaceData);
 app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
 app.post("/removeSubscribe", removeSubscribe);
+app.post("/addDeltaBroker", getUserBalance);
 
 app.get("/api/live-pnl", (req, res) => {
   const pnlData = openTrades.map((trade) => ({
@@ -131,6 +134,13 @@ app.get("/strategy_2", (req, res) => {
 
   setTimeout(() => {
     strategy_2();
+  }, 0);
+});
+app.get("/strategy_3", (req, res) => {
+  res.status(200).json({ message: "Strategy_2 scheduled successfully." });
+
+  setTimeout(() => {
+    strategy_3();
   }, 0);
 });
 

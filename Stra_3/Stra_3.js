@@ -6,7 +6,7 @@ const { placeOrder } = require("../paper trade/placeOrder");
 
 const quantity = 10;
 
-const strategy_2 = () => {
+const strategy_3 = () => {
   const start = () => {
     let tradeTriggered = false;
     const now = new Date();
@@ -26,9 +26,9 @@ const strategy_2 = () => {
         console.log(
           "No trade triggered by 12:30 PM. Rescheduling for 20:45 PM tomorrow."
         );
-        schedule.scheduleJob("45 20 * * *", () => {
+        schedule.scheduleJob("30 21 * * *", () => {
           console.log("Running strategy at 20:45 PM.");
-          strategy_2();
+          strategy_3();
         });
       }
     }, cutoffTimeout);
@@ -48,11 +48,11 @@ const strategy_2 = () => {
 
     const startTime = `${now.getFullYear()}-${String(
       now.getMonth() + 1
-    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} 12:30:00`;
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} 17:30:00`;
     const endTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
       2,
       "0"
-    )}-${String(now.getDate()).padStart(2, "0")} 20:30:00`;
+    )}-${String(now.getDate()).padStart(2, "0")} 21:30:00`;
 
     console.log(startTime);
     console.log(endTime);
@@ -124,7 +124,7 @@ const strategy_2 = () => {
       const subscribeMessage = JSON.stringify({
         type: "subscribe",
         payload: {
-          channels: [{ name: "candlestick_15m", symbols: [symbol] }],
+          channels: [{ name: "candlestick_4h", symbols: [symbol] }],
         },
       });
 
@@ -156,8 +156,8 @@ const strategy_2 = () => {
                 size: quantity,
                 side: "buy",
                 order_type: "market_order",
-                take_profit_point: buyEntry * 0.01,
-                stop_loss_point: buyEntry * 0.005,
+                take_profit_point: 700,
+                stop_loss_point: 300,
               });
             }
 
@@ -171,8 +171,8 @@ const strategy_2 = () => {
                 size: quantity,
                 side: "sell",
                 order_type: "market_order",
-                take_profit_point: sellEntry * 0.01,
-                stop_loss_point: sellEntry * 0.005,
+                take_profit_point: 700,
+                stop_loss_point: 300,
               });
             }
           }
@@ -191,12 +191,12 @@ const strategy_2 = () => {
     }
   };
 
-  console.log("Scheduling Strategy 2 at 20:45");
-  schedule.scheduleJob("45 20 * * *", () => {
+  console.log("Scheduling Strategy 3 at 21:30");
+  schedule.scheduleJob("30 21 * * *", () => {
     console.log("Running strategy at 20:45 PM.");
     start();
   });
 };
 
-strategy_2();
-module.exports = strategy_2;
+strategy_3();
+module.exports = strategy_3;

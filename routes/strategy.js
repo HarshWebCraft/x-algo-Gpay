@@ -111,11 +111,7 @@ const strategy = () => {
 
   // Calculate the next run time and schedule the task
   const nextRunTime = calculateNextRunTime(candleTime, timeFrame);
-  console.log(
-    `Scheduling OHLC data fetch at ${nextRunTime.format(
-      "HH:mm"
-    )} for the next occurrence.`
-  );
+  console.log(`Scheduling Strategy 1 at ${nextRunTime.format("HH:mm")} `);
 
   schedule.scheduleJob(nextRunTime.toDate(), () => {
     fetchOhlcData();
