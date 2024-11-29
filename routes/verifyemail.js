@@ -5,46 +5,19 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-const secretKey = crypto
-  .createHash("sha256")
-  .update(process.env.SECRET_KEY)
-  .digest("base64")
-  .substr(0, 32);
-const encryptMethod = "AES-256-CBC";
-
-function decrypt(encryptedData, secret, iv) {
-  const decipher = crypto.createDecipheriv(
-    encryptMethod,
-    Buffer.from(secret, "utf-8"),
-    Buffer.from(iv, "base64")
-  );
-
-  let decrypted = decipher.update(encryptedData, "base64", "utf-8");
-  decrypted += decipher.final("utf-8");
-
-  return decrypted;
-}
-
 const verifyUser = async (req, res) => {
-  const encryptedEmail = req.body.urlEmail;
-  const iv = req.body.iv;
-
-  console.log("Encrypted Email:", encryptedEmail);
-  console.log("IV:", iv);
-
-  if (!encryptedEmail || !iv) {
-    console.error("urlEmail or iv is missing in the request");
-    return res.status(400).json({ message: "Invalid request data" });
-  }
-
   try {
-    const decryptedEmail = decrypt(encryptedEmail, secretKey, iv);
-    console.log("Decrypted Email:", decryptedEmail);
+    const decrypt = (encoded) =>
+      Buffer.from(encoded, "base64").toString("utf-8");
+    const encryptedEmail = req.body.urlEmail;
+    console.log(encryptedEmail);
+    const originalEmail = decrypt(encryptedEmail);
+    console.log("Decrypted Email:", originalEmail);
 
-    const user = await User.findOne({ Email: decryptedEmail });
+    const user = await User.findOne({ Email: originalEmail });
     if (user) {
       const update = await User.updateOne(
-        { Email: decryptedEmail },
+        { Email: originalEmail },
         {
           $set: {
             Verification: true,

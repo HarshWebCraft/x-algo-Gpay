@@ -14,7 +14,7 @@ const deltaBrokerSchema = new Schema({
 });
 
 const DeployedSchema = new Schema({
-  Strategy: Number,
+  Strategy: { type: Types.ObjectId },
   Index: String,
   Quantity: String,
   Account: String,
@@ -43,6 +43,11 @@ const transaction = new Schema({
   },
 });
 
+const SpreadsheetSchema = new Schema({
+  strategyId: { type: Types.ObjectId, ref: "MarketPlace", required: true },
+  spreadsheetId: { type: String, required: true }, // Google Spreadsheet ID
+});
+
 const userSchema = new Schema({
   Name: String,
   Email: String,
@@ -60,6 +65,8 @@ const userSchema = new Schema({
   DeltaBrokerSchema: [deltaBrokerSchema],
   DeployedData: [DeployedSchema],
   SubscribedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
+  DeployedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
+  Spreadsheets: [SpreadsheetSchema],
 });
 
 const User = mongoose.model("UserData", userSchema);

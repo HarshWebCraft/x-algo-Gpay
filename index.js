@@ -34,7 +34,6 @@ const addExcelData = require("./createExcel/createExcel");
 const resetPassword = require("./routes/resetPassword");
 const forgetPassword = require("./routes/forgetPassword");
 const tour = require("./routes/tour");
-const addMyStra = require("./routes/addToWallet");
 const removeMyStra = require("./routes/removeMyStra");
 const addDeployed = require("./routes/addDeployed");
 const removeDeployed = require("./routes/removeDeployed");
@@ -93,7 +92,6 @@ app.post("/add-excel-data", addExcelData);
 app.post("/resetPassword", resetPassword);
 app.post("/forgetPassword", forgetPassword);
 app.post("/tour", tour);
-app.post("/addmystra", addMyStra);
 app.post("/removeMyStra", removeMyStra);
 app.post("/addDeployed", addDeployed);
 app.post("/removeDeployed", removeDeployed);
@@ -112,7 +110,7 @@ app.post("/getMarketPlaceData", getMarketPlace);
 app.post("/updateSubscribe", updateSubscribe);
 app.post("/removeSubscribe", removeSubscribe);
 app.post("/addDeltaBroker", getUserBalance);
-app.get("/fetchSheetData", fetchSheetData);
+app.post("/fetchSheetData", fetchSheetData);
 
 app.get("/api/live-pnl", (req, res) => {
   const pnlData = openTrades.map((trade) => ({

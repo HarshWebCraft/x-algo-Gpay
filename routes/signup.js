@@ -43,33 +43,14 @@ const signup = async (req, res) => {
         console.log("inserted new user to database");
       });
 
-      const secretKey = crypto
-        .createHash("sha256")
-        .update(process.env.SECRET_KEY)
-        .digest("base64")
-        .substr(0, 32);
-      const encryptMethod = "AES-256-CBC";
+      const encrypt = (text) => Buffer.from(text).toString("base64");
 
-      function encrypt(text, secret) {
-        const iv = crypto.randomBytes(16); // Generate a random IV for each encryption
-        const cipher = crypto.createCipheriv(encryptMethod, secret, iv);
+      // Encrypt the email
+      const encryptedEmail = encrypt(req.body.email);
 
-        let encrypted = cipher.update(text, "utf-8", "base64");
-        encrypted += cipher.final("base64");
-
-        return {
-          iv: iv.toString("base64"),
-          encryptedData: encrypted,
-        };
-      }
-
-      const encryptedData = encrypt(`${req.body.email}`, secretKey);
-      console.log("asdasd");
-
-      const verificationLink = `${url}/verify-email?email=${encryptedData.encryptedData}&iv=${encryptedData.iv}`;
-      // const verificationLink = `${url}/verify-email?email=${encodeURIComponent(
-      //   encryptedData.encryptedData
-      // )}&iv=${encodeURIComponent(encryptedData.iv)}`;
+      const verificationLink = `${url}/verify-email?email=${encodeURIComponent(
+        encryptedEmail
+      )}`;
 
       const transporter = nodemailer.createTransport({
         service: "gmail",

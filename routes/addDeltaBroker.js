@@ -2,6 +2,7 @@ const dns = require("dns");
 const SwaggerClient = require("swagger-client");
 const crypto = require("crypto");
 const url = require("url");
+const User = require("../models/users");
 
 // Set DNS order for IPv4-first resolution
 dns.setDefaultResultOrder("ipv4first");
@@ -56,14 +57,28 @@ const createDeltaClient = async (apiKey, apiSecret) => {
 // Function to get user balances
 const getUserBalance = async (req, res) => {
   try {
-    const { apiKey, apiSecret } = req.body;
+    const { email, apiKey, apiSecret } = req.body;
     console.log("API key and secret received:", apiKey, apiSecret);
 
     const client = await createDeltaClient(apiKey, apiSecret);
     const response = await client.apis.Wallet.getBalances();
 
     console.log("User balance response:", response);
-    res.json({ success: true, response });
+
+    const updatedUser = await User.findOneAndUpdate(
+      { Email: email },
+      {
+        $push: {
+          DeltaBrokerSchema: {
+            deltaSecretKey: apiSecret,
+            deltaApiKey: apiKey,
+          },
+        },
+      },
+      { new: true, upsert: false }
+    );
+
+    res.json({ success: true, response, updatedUser });
   } catch (error) {
     console.error("Error fetching balance:", error);
     res.json({ success: false, error: error.message });

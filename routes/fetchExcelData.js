@@ -1,5 +1,66 @@
+// const { google } = require("googleapis");
+
+// const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+// const auth = new google.auth.GoogleAuth({
+//   credentials,
+//   scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"], // Use read-only access if you don't need to edit the sheet
+// });
+
+// // Google Sheets API setup
+// const sheets = google.sheets({ version: "v4", auth });
+
+// const fetchSheetData = async (req, res) => {
+//   const spreadsheetId = "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4"; // Replace with your Google Sheet ID
+
+//   try {
+//     // Request metadata to get the sheet name dynamically
+//     const metadataResponse = await sheets.spreadsheets.get({
+//       spreadsheetId,
+//     });
+
+//     // Find the first sheet name dynamically
+//     const sheetName = metadataResponse.data.sheets[0].properties.title;
+
+//     // Fetch all sheet data (excluding headers)
+//     const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
+//     const sheetResponse = await sheets.spreadsheets.values.get({
+//       spreadsheetId,
+//       range: sheetRange,
+//     });
+
+//     let rows = sheetResponse.data.values;
+//     if (rows && rows.length) {
+//       rows = rows.slice(1); // Exclude header row
+//     } else {
+//       rows = [];
+//     }
+
+//     // Fetch the value of cell K10
+//     const cellRange = `${sheetName}!K10`;
+//     const cellResponse = await sheets.spreadsheets.values.get({
+//       spreadsheetId,
+//       range: cellRange,
+//     });
+
+//     const cellValue = cellResponse.data.values
+//       ? cellResponse.data.values[0][0]
+//       : null;
+
+//     // Send both the sheet data and the K10 cell value in the response
+//     res.json({
+//       sheetData: rows,
+//       cellData: { cell: "K10", value: cellValue },
+//     });
+//   } catch (error) {
+//     console.error("Error fetching sheet data:", error);
+//     res.status(500).json({ error: "Failed to fetch sheet data." });
+//   }
+// };
+
+// module.exports = fetchSheetData;
+
 const { google } = require("googleapis");
-const path = require("path");
+const User = require("../models/users");
 
 const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 const auth = new google.auth.GoogleAuth({
@@ -11,36 +72,67 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: "v4", auth });
 
 const fetchSheetData = async (req, res) => {
-  const spreadsheetId = "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4"; // Replace with your Google Sheet ID
+  const email = req.body.email;
+
+  // Fetch the user schema by email
+  const userSchema = await User.findOne({ Email: email });
+  if (!userSchema) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  const Spreadsheets = userSchema.Spreadsheets;
+  const allSheetData = [];
 
   try {
-    // Request metadata to get the sheet name dynamically
-    const metadataResponse = await sheets.spreadsheets.get({
-      spreadsheetId,
-    });
+    // Loop through each spreadsheet and fetch the corresponding data
+    for (let i = 0; i < Spreadsheets.length; i++) {
+      const spreadsheetId = Spreadsheets[i].spreadsheetId;
+      const strategyId = Spreadsheets[i].strategyId;
+      const DeploedDate = userSchema.DeployedData[i].AppliedDate;
+      // Fetch metadata for the sheet (to get the sheet name)
+      const metadataResponse = await sheets.spreadsheets.get({
+        spreadsheetId,
+      });
 
-    // Find the first sheet name dynamically
-    const sheetName = metadataResponse.data.sheets[0].properties.title;
+      const sheetName = metadataResponse.data.sheets[0].properties.title;
 
-    // Use the sheet name to request all data from that sheet
-    const range = `${sheetName}!A:Z`; // Adjust columns as needed (A:Z is just an example)
+      // Fetch all sheet data (excluding headers)
+      const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
+      const sheetResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: sheetRange,
+      });
 
-    // Fetch the data from the specified range
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
+      let rows = sheetResponse.data.values;
+      if (rows && rows.length) {
+        rows = rows.slice(1); // Exclude header row
+      } else {
+        rows = [];
+      }
 
-    let rows = response.data.values;
-    if (rows && rows.length) {
-      // Remove the first row (header row)
-      rows = rows.slice(1);
+      // Fetch the value of cell K10 (or any other cells you need)
+      const cellRange = `${sheetName}!K10`;
+      const cellResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: cellRange,
+      });
 
-      console.log("Sheet data without the header:", rows);
-    } else {
-      console.log("No data found.");
+      const cellValue = cellResponse.data.values
+        ? cellResponse.data.values[0][0]
+        : null;
+
+      // Push the sheet data into the allSheetData array
+      allSheetData.push({
+        strategyId: strategyId,
+        strategyName: `Strategy ${i + 1}`, // You can adjust this based on actual strategy names
+        sheetData: rows,
+        DeploedDate: DeploedDate,
+        cellData: { cell: "K10", value: cellValue },
+      });
     }
-    res.json(rows); // Send the response without the first row
+
+    // Send the response with all sheet data
+    res.json({ allSheetData });
   } catch (error) {
     console.error("Error fetching sheet data:", error);
     res.status(500).json({ error: "Failed to fetch sheet data." });
