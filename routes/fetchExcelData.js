@@ -88,6 +88,7 @@ const fetchSheetData = async (req, res) => {
     for (let i = 0; i < Spreadsheets.length; i++) {
       const spreadsheetId = Spreadsheets[i].spreadsheetId;
       const strategyId = Spreadsheets[i].strategyId;
+
       const DeploedDate = userSchema.DeployedData[i].AppliedDate;
       // Fetch metadata for the sheet (to get the sheet name)
       const metadataResponse = await sheets.spreadsheets.get({
@@ -124,7 +125,7 @@ const fetchSheetData = async (req, res) => {
       // Push the sheet data into the allSheetData array
       allSheetData.push({
         strategyId: strategyId,
-        strategyName: `Strategy ${i + 1}`, // You can adjust this based on actual strategy names
+        strategyName: ``, // You can adjust this based on actual strategy names
         sheetData: rows,
         DeploedDate: DeploedDate,
         cellData: { cell: "K10", value: cellValue },
