@@ -84,14 +84,21 @@ const addDeployed = async (req, res) => {
       spreadsheetId = existingSpreadsheet.spreadsheetId;
       console.log("Spreadsheet already exists:", spreadsheetId);
     }
-    await drive.permissions.create({
-      fileId: spreadsheetId,
-      requestBody: {
-        role: "writer", // Grant "edit" access
-        type: "user", // Share with a specific user
-        emailAddress: "harshdvadhavana26@gmail.com", // User's email
-      },
-    });
+    const emails = [
+      "harshdvadhavana26@gmail.com",
+      "ayushsantoki1462004@gmail.com",
+    ];
+
+    for (const email of emails) {
+      await drive.permissions.create({
+        fileId: spreadsheetId,
+        requestBody: {
+          role: "writer", // Grant "edit" access
+          type: "user", // Share with a specific user
+          emailAddress: email, // Current user's email
+        },
+      });
+    }
 
     // Append the deployed data to the spreadsheet
     const values = [
@@ -103,7 +110,6 @@ const addDeployed = async (req, res) => {
         "Exit Time",
         "Entry Price",
         "Exit Price",
-        "Entry",
         "Qty",
         "P&L",
       ],
