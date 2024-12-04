@@ -10,7 +10,8 @@ const speakeasy = require("speakeasy");
 // V4LKTGHGDDI75CKQXIBFO2HWJI H54303926 6969
 // UUGDXH753M4H5FS5HJVIGBSSSU R51644670 3250
 // I6DWYH727T55JZEQVBJ3MRXC6E A1501341 2308
-
+// UWjlAPIcjUfoHdDHkv0YmUtmmhEf5I VtzK7hAitOH2UoOmHh1uijfjoOaY9p8V6U5HEEvk38mofvxwndyEMJIYcru7
+// u6PGxvu2GMqJcTX7hAJPnF0ijCSTWs XubP4vdMGZ9Muuiy5AKtmLNmY0k8unCzQCFD933kUg7KTnF8c4IyM1ytG3I9
 const User = require("../models/users");
 
 const addbroker = async (req, res) => {
@@ -86,16 +87,6 @@ const addbroker = async (req, res) => {
             }
           );
           console.log("User updated with AngelOne credentials:", updatedUser);
-
-          // Move the second try block inside the first one
-          const newUser = new User({
-            Userdata: [
-              {
-                AngleID1: "Broker123",
-                Capital2: "10000",
-              },
-            ],
-          });
 
           try {
             const savedUser = await newUser.save();
@@ -233,6 +224,8 @@ const addbroker = async (req, res) => {
           // res.json(false)
         }
       }
+
+      
 
       console.log("line 240 hello");
 

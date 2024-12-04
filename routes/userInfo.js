@@ -1,6 +1,7 @@
 const User = require("../models/users");
 const axios = require("axios");
 const speakeasy = require("speakeasy");
+const createDeltaClient = require("./DeltaClient");
 
 const userInfo = async (req, res) => {
   console.log("userinfo" + req.body.Email);
@@ -83,6 +84,34 @@ const userInfo = async (req, res) => {
       console.log(error);
     }
   }
+
+  for (const schema of checking.DeltaBrokerSchema) {
+    try {
+      console.log("i am under the water");
+      const { deltaApiKey, deltaSecretKey } = schema;
+
+      // Fetch user details using Delta API
+      const client = await createDeltaClient(deltaApiKey, deltaSecretKey);
+      const userDetails = await client.apis.Account.getUser();
+
+      responseData.push({
+        deltaApiKey,
+        deltaSecretKey,
+        userDetails: userDetails.body, // Adjust based on the actual API response structure
+      });
+    } catch (error) {
+      console.error(
+        `Error fetching details for Delta account ${schema.deltaApiKey}:`,
+        error.message
+      );
+      responseData.push({
+        deltaApiKey: schema.deltaApiKey,
+        deltaSecretKey: schema.deltaSecretKey,
+        error: error.message,
+      });
+    }
+  }
+
   console.log(responseData);
   res.json(responseData);
 };
