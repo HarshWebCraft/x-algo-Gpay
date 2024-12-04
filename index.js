@@ -58,7 +58,14 @@ const fetchSheetData = require("./routes/fetchExcelData.js");
 const removeDeployStra = require("./routes/removeDeployStra.js");
 
 require("./models/users");
-app.use(cors());
+const corsOptions = {
+  origin: "https://xalgos.in",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.get("/server/test", (req, res) => {
   console.log(JSON.parse(process.env.GOOGLE_CREDENTIALS));
