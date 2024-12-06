@@ -1,5 +1,6 @@
 const { google } = require("googleapis");
 const fs = require("fs");
+const User = require("../models/users");
 
 class PaperTrade {
   constructor(order) {
@@ -130,23 +131,8 @@ class PaperTrade {
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
 
-    const sheets = google.sheets({ version: "v4", auth });
-    let spreadsheetId;
-    switch (this.strategy) {
-      case 1:
-        spreadsheetId = "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4";
-        break;
-      case 2:
-        spreadsheetId = "1duAldHS3kpMCavYaebHdMVvdqphTnwHxNPSLH5HJJoQ";
-        break;
-      case 3:
-        spreadsheetId = "1C6OOGOd_8aWKpaqSMOsYgGCTxnO6cYEQC-e-TMC_zcs";
-        break;
-      default:
-        console.error("Unknown strategy ID:", this.strategy);
-        return;
-    }
-    const range = "Sheet1!A2"; // Adjust range to your sheet's configuration
+    const users = await User.find();
+    const strategyId = new mongoose.Types.ObjectId(this.strategy);
 
     const tradeData = [
       this.tradeNumber++,
@@ -162,23 +148,66 @@ class PaperTrade {
 
     try {
       // Append the trade data to the sheet
-      const response = await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range,
-        valueInputOption: "RAW",
-        resource: {
-          values: [tradeData],
-        },
-      });
+      // const response = await sheets.spreadsheets.values.append({
+      //   spreadsheetId,
+      //   range,
+      //   valueInputOption: "RAW",
+      //   resource: {
+      //     values: [tradeData],
+      //   },
+      // });
 
-      console.log(
-        "Trade data saved to Google Sheets:",
-        response.data.updates.updatedRange
-      );
+      // console.log(
+      //   "Trade data saved to Google Sheets:",
+      //   response.data.updates.updatedRange
+      // );
+
+      await appendDataToSpreadsheets(users, strategyId, [tradeData]);
     } catch (error) {
       console.error("Error saving trade data to Google Sheets:", error);
     }
   }
 }
+
+const appendDataToSpreadsheets = async (users, strategyId, data) => {
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
+  const sheets = google.sheets({ version: "v4", auth });
+
+  const appendToSpreadsheet = async (spreadsheetId, userEmail) => {
+    try {
+      const range = "Sheet1!A2"; // Start from row 2 to avoid the header row
+      const values = data; // Only the trade data, no header
+
+      await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range,
+        valueInputOption: "RAW",
+        resource: { values },
+      });
+
+      console.log(`Data appended successfully to spreadsheet for ${userEmail}`);
+    } catch (error) {
+      console.error(
+        `Error appending data to ${userEmail}'s spreadsheet:`,
+        error
+      );
+    }
+  };
+
+  const appendPromises = users
+    .filter((user) => user.DeployedStrategies.includes(strategyId))
+    .map((user) =>
+      user.Spreadsheets.forEach((spreadsheet) =>
+        appendToSpreadsheet(spreadsheet.spreadsheetId, user.Email)
+      )
+    );
+
+  await Promise.all(appendPromises);
+  console.log("Data appended to all relevant spreadsheets!");
+};
 
 module.exports = PaperTrade;

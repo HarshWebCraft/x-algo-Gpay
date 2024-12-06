@@ -11,7 +11,7 @@ let wss; // Declare the WebSocket server instance globally
 const server = http.createServer(app);
 require("dotenv").config();
 const { openTrades } = require("./paper trade/placeOrder.js");
-
+const User = require("./models/users.js");
 const BrokerSchema = require("./models/users");
 // const strategy = require("./routes/strategy.js");
 
@@ -59,18 +59,20 @@ const removeDeployStra = require("./routes/removeDeployStra.js");
 
 require("./models/users");
 const corsOptions = {
-  origin: "https://xalgos.in",
+  origin: "*",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionsSuccessStatus: 204,
 };
-
 app.use(cors(corsOptions));
 
-app.get("/server/test", (req, res) => {
-  console.log(JSON.parse(process.env.GOOGLE_CREDENTIALS));
-
-  res.json("hello world 2 " + Date.now());
+app.get("/server/test", async (req, res) => {
+  const strategy = "67208287a8f7ff08c36e54d2";
+  const strategyId = new mongoose.Types.ObjectId(strategy);
+  console.log(strategyId);
+  const allUsers = await User.find({ DeployedStrategies: strategyId });
+  console.log(allUsers);
+  res.json("hello world 2 " + allUsers);
 });
 app.use(bodyParser.json());
 

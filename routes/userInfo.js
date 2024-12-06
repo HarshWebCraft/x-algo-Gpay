@@ -10,6 +10,7 @@ const userInfo = async (req, res) => {
   console.log("userinfo route");
   console.log("userinfo" + checking);
   const responseData = [];
+
   for (const item of checking.BrokerData) {
     try {
       const angelId = item.AngelId;
@@ -94,10 +95,14 @@ const userInfo = async (req, res) => {
       const client = await createDeltaClient(deltaApiKey, deltaSecretKey);
       const userDetails = await client.apis.Account.getUser();
 
+      // Fetch wallet balances using Delta API
+      const response = await client.apis.Wallet.getBalances();
+
       responseData.push({
         deltaApiKey,
         deltaSecretKey,
         userDetails: userDetails.body, // Adjust based on the actual API response structure
+        balances: response.body, // Store the balances response (adjust based on actual structure)
       });
     } catch (error) {
       console.error(

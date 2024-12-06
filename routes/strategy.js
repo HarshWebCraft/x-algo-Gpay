@@ -175,7 +175,7 @@ const strategy = () => {
               // "limit_price": "59000",
               take_profit_point: take_profit_point,
               stop_loss_point: stop_loss_point,
-              strategy: 1,
+              strategy: "67208287a8f7ff08c36e54d2",
             });
             ws.close();
           }
@@ -190,7 +190,7 @@ const strategy = () => {
               // "limit_price": "59000",
               take_profit_point: take_profit_point,
               stop_loss_point: stop_loss_point,
-              strategy: 1,
+              strategy: "67208287a8f7ff08c36e54d2",
             });
           }
         }
