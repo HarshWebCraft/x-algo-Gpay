@@ -9,12 +9,14 @@ const BrokerSchema = new Schema({
 });
 
 const deltaBrokerSchema = new Schema({
+  deltaBrokerId: String,
   deltaSecretKey: String,
   deltaApiKey: String,
 });
 
 const DeployedSchema = new Schema({
   Strategy: { type: Types.ObjectId },
+  StrategyName: String,
   Index: String,
   Quantity: String,
   Account: String,
@@ -61,6 +63,8 @@ const userSchema = new Schema({
   Verification: Boolean,
   Tour: Boolean,
   MyStartegies: [Number],
+  ActiveStrategys: Number,
+  BrokerIds: [String],
   BrokerData: [BrokerSchema],
   DeltaBrokerSchema: [deltaBrokerSchema],
   DeployedData: [DeployedSchema],

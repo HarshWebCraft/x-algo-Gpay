@@ -2,7 +2,8 @@ const { google } = require("googleapis");
 const fs = require("fs");
 const User = require("../models/users");
 const { gmail } = require("googleapis/build/src/apis/gmail");
-
+const MarketPlace = require("../models/marketPlace");
+const mongoose = require("mongoose");
 // Load Google API credentials
 const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 
@@ -27,6 +28,12 @@ const addDeployed = async (req, res) => {
     const applyDate =
       date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
 
+    const strategyObjectId = new mongoose.Types.ObjectId(id);
+
+    const strategyDetails = await MarketPlace.findOne({
+      _id: strategyObjectId,
+    });
+    const strategyName = strategyDetails.title;
     // Find and update the user
     const updatedUser = await User.findOneAndUpdate(
       { Email: email },
@@ -34,6 +41,7 @@ const addDeployed = async (req, res) => {
         $push: {
           DeployedData: {
             Strategy: id,
+            StrategyName: strategyName,
             Index: index,
             Quantity: quantity,
             Account: account,
@@ -41,6 +49,7 @@ const addDeployed = async (req, res) => {
           },
           DeployedStrategies: id,
         },
+        $inc: { ActiveStrategys: 1 },
       },
       { new: true, upsert: false }
     );

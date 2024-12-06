@@ -83,6 +83,7 @@ const addbroker = async (req, res) => {
                   SecretKey: secretKey,
                   ApiKey: ApiKey,
                 },
+                BrokerIds: angelId,
               },
             }
           );
@@ -224,8 +225,6 @@ const addbroker = async (req, res) => {
           // res.json(false)
         }
       }
-
-      
 
       console.log("line 240 hello");
 

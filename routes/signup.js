@@ -13,7 +13,7 @@ const signup = async (req, res) => {
   try {
     const url =
       process.env.NODE_ENV === "production"
-        ? "https://xalgos.netlify.app"
+        ? "https://xalgos.in"
         : "http://localhost:3000";
 
     const data = {
@@ -25,6 +25,7 @@ const signup = async (req, res) => {
       Broker: false,
       Verification: false,
       BrokerCount: 0,
+      ActiveStrategys: 0,
       MyStartegies: [],
       Tour: false,
       BrokerSchema: [],

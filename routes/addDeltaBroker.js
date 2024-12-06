@@ -62,17 +62,24 @@ const getUserBalance = async (req, res) => {
 
     const client = await createDeltaClient(apiKey, apiSecret);
     const response = await client.apis.Wallet.getBalances();
+    const userDetails = await client.apis.Account.getUser();
+    console.log(
+      "User balance response:",
+      userDetails.body.result.phishing_code
+    );
 
-    console.log("User balance response:", response);
+    const deltaId = userDetails.body.result.phishing_code;
 
     const updatedUser = await User.findOneAndUpdate(
       { Email: email },
       {
         $push: {
           DeltaBrokerSchema: {
+            deltaBrokerId: deltaId,
             deltaSecretKey: apiSecret,
             deltaApiKey: apiKey,
           },
+          BrokerIds: deltaId,
         },
       },
       { new: true, upsert: false }
