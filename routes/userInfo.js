@@ -11,7 +11,7 @@ const userInfo = async (req, res) => {
   console.log("userinfo" + checking);
   const responseData = [];
 
-  for (const item of checking.BrokerData) {
+  for (const item of checking.AngelbrokerData) {
     try {
       const angelId = item.AngelId;
       const angelpass = item.AngelPass;
