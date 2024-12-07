@@ -77,7 +77,7 @@ const addbroker = async (req, res) => {
               $inc: { BrokerCount: 1 },
               Broker: true,
               $push: {
-                BrokerData: {
+                AngelBrokerData: {
                   AngelId: angelId,
                   AngelPass: angelpass,
                   SecretKey: secretKey,
@@ -133,7 +133,7 @@ const addbroker = async (req, res) => {
       console.log(checking);
       const responseData = [];
 
-      for (const schema of checking.BrokerData) {
+      for (const schema of checking.AngelBrokerData) {
         console.log("first loop");
         const angelId = checking.UserData2;
         const angelpass = checking.Angelpass;

@@ -12,7 +12,6 @@ const server = http.createServer(app);
 require("dotenv").config();
 const { openTrades } = require("./paper trade/placeOrder.js");
 const User = require("./models/users.js");
-const BrokerSchema = require("./models/users");
 // const strategy = require("./routes/strategy.js");
 
 const signup = require("./routes/signup");

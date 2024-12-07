@@ -26,6 +26,7 @@ const signup = async (req, res) => {
       Verification: false,
       BrokerCount: 0,
       ActiveStrategys: 0,
+      MyStartegies: [],
       Tour: false,
     };
 
