@@ -23,7 +23,7 @@ const addDeployed = async (req, res) => {
     const index = req.body.Index;
     const quantity = req.body.Quaninty;
     const email = req.body.Email;
-    const account = req.body.Account;
+    const account = req.body.Account; // Account passed from frontend
     const date = new Date();
     const applyDate =
       date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
@@ -34,10 +34,37 @@ const addDeployed = async (req, res) => {
       _id: strategyObjectId,
     });
     const strategyName = strategyDetails.title;
-    // Find and update the user
-    if (account == "papertrade") {
+
+    let brokerValue = "";
+
+    // Find user to check the BrokerData
+    const user = await User.findOne({ Email: email });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
     }
 
+    // Determine the Broker value
+    if (account === "papertrade") {
+      brokerValue = "PaperTrade";
+    } else {
+      const isAngelOne = user.AngelBrokerData.some(
+        (broker) => broker.AngelId === account
+      );
+      const isDelta = user.DeltaBrokerSchema.some(
+        (broker) => broker.deltaBrokerId === account
+      );
+
+      if (isAngelOne) {
+        brokerValue = "AngelOne";
+      } else if (isDelta) {
+        brokerValue = "Delta";
+      } else {
+        return res.status(400).json({ error: "Invalid account or broker ID." });
+      }
+    }
+
+    // Update the user
     const updatedUser = await User.findOneAndUpdate(
       { Email: email },
       {
@@ -49,8 +76,10 @@ const addDeployed = async (req, res) => {
             Quantity: quantity,
             Account: account,
             AppliedDate: applyDate,
+            Broker: brokerValue,
           },
           DeployedStrategies: id,
+          DeployedStrategiesBrokerIds: account,
         },
         $inc: { ActiveStrategys: 1 },
       },
@@ -63,14 +92,13 @@ const addDeployed = async (req, res) => {
 
     console.log("User updated successfully:", updatedUser);
 
-    // Check if a spreadsheet exists for the user and strategy
+    // Spreadsheet logic
     const existingSpreadsheet = updatedUser.Spreadsheets.find(
       (spreadsheet) => spreadsheet.strategyId.toString() === id
     );
 
     let spreadsheetId;
     if (!existingSpreadsheet) {
-      // Create a new spreadsheet
       const resource = {
         properties: {
           title: `${email}_${id}_StrategyData`,
@@ -83,7 +111,6 @@ const addDeployed = async (req, res) => {
 
       spreadsheetId = response.data.spreadsheetId;
 
-      // Add the new spreadsheet metadata to the user's document
       updatedUser.Spreadsheets.push({
         strategyId: id,
         spreadsheetId,
@@ -96,6 +123,7 @@ const addDeployed = async (req, res) => {
       spreadsheetId = existingSpreadsheet.spreadsheetId;
       console.log("Spreadsheet already exists:", spreadsheetId);
     }
+
     const emails = [
       "harshdvadhavana26@gmail.com",
       "ayushsantoki1462004@gmail.com",
@@ -105,14 +133,13 @@ const addDeployed = async (req, res) => {
       await drive.permissions.create({
         fileId: spreadsheetId,
         requestBody: {
-          role: "writer", // Grant "edit" access
-          type: "user", // Share with a specific user
-          emailAddress: email, // Current user's email
+          role: "writer",
+          type: "user",
+          emailAddress: email,
         },
       });
     }
 
-    // Append the deployed data to the spreadsheet
     const values = [
       [
         "NO",
@@ -126,7 +153,7 @@ const addDeployed = async (req, res) => {
         "P&L",
       ],
     ];
-    const range = "Sheet1!A1"; // Adjust the range as needed
+    const range = "Sheet1!A1";
     await sheets.spreadsheets.values.append({
       spreadsheetId,
       range,
@@ -144,5 +171,7 @@ const addDeployed = async (req, res) => {
       .json({ error: "An error occurred while deploying the strategy." });
   }
 };
+
+module.exports = addDeployed;
 
 module.exports = addDeployed;

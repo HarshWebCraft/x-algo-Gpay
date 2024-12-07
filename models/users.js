@@ -67,6 +67,7 @@ const userSchema = new Schema({
   BrokerIds: [String],
   AngelBrokerData: [angelBrokerSchema],
   DeltaBrokerSchema: [deltaBrokerSchema],
+  DeployedStrategiesBrokerIds: [String],
   DeployedData: [DeployedSchema],
   SubscribedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
   DeployedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],

@@ -5,8 +5,10 @@ const removeDeployStra = async (req, res) => {
   try {
     const strategyId = req.body.strategyId;
     const email = req.body.email;
+    const broker = req.body.broker;
 
     console.log("Received strategyId:", strategyId);
+    console.log("Received broker:", broker);
 
     // Convert strategyId to ObjectId for comparison
     const strategyObjectId = new mongoose.Types.ObjectId(strategyId);
@@ -22,21 +24,33 @@ const removeDeployStra = async (req, res) => {
     console.log("DeployedData before:", user.DeployedData);
     console.log("DeployedStrategies before:", user.DeployedStrategies);
 
-    // Remove strategy from DeployedData
+    // Remove strategy from DeployedData only if both strategyObjectId and broker match
     user.DeployedData = user.DeployedData.filter((data) => {
-      console.log("Comparing:", data.Strategy, strategyObjectId);
-      return !data.Strategy.equals(strategyObjectId);
+      console.log(
+        "Comparing strategy and broker:",
+        data.Strategy,
+        strategyObjectId,
+        data.Broker,
+        broker
+      );
+      return !(
+        data.Strategy.equals(strategyObjectId) && data.Broker === broker
+      );
     });
 
     // Remove strategy from DeployedStrategies
     user.DeployedStrategies = user.DeployedStrategies.filter((id) => {
-      console.log("Comparing:", id, strategyObjectId);
+      console.log("Comparing strategyId:", id, strategyObjectId);
       return !id.equals(strategyObjectId);
     });
 
     // Remove strategy associated with Spreadsheets
     user.Spreadsheets = user.Spreadsheets.filter((spreadsheet) => {
-      console.log("Comparing:", spreadsheet.strategyId, strategyObjectId);
+      console.log(
+        "Comparing strategyId:",
+        spreadsheet.strategyId,
+        strategyObjectId
+      );
       return !spreadsheet.strategyId?.equals(strategyObjectId);
     });
 
