@@ -35,6 +35,9 @@ const addDeployed = async (req, res) => {
     });
     const strategyName = strategyDetails.title;
     // Find and update the user
+    if (account == "papertrade") {
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { Email: email },
       {

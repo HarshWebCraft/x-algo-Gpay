@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema, Types } = mongoose;
 
-const BrokerSchema = new Schema({
+const angelBrokerSchema = new Schema({
   AngelId: String,
   AngelPass: String,
   SecretKey: String,
@@ -65,7 +65,7 @@ const userSchema = new Schema({
   MyStartegies: [Number],
   ActiveStrategys: Number,
   BrokerIds: [String],
-  BrokerData: [BrokerSchema],
+  AngelBrokerData: [angelBrokerSchema],
   DeltaBrokerSchema: [deltaBrokerSchema],
   DeployedData: [DeployedSchema],
   SubscribedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
@@ -76,7 +76,7 @@ const userSchema = new Schema({
 const User = mongoose.model("UserData", userSchema);
 
 module.exports = userSchema;
-module.exports = BrokerSchema;
+module.exports = angelBrokerSchema;
 module.exports = deltaBrokerSchema;
 module.exports = transaction;
 
