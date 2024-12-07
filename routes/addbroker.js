@@ -181,7 +181,7 @@ const addbroker = async (req, res) => {
 
         console.log("test 3");
 
-        const response = await axios(config);
+        const response = await sendRequestWithRetry(config, 3, 3000);
 
         console.log("test 4");
 
@@ -236,3 +236,20 @@ const addbroker = async (req, res) => {
 };
 
 module.exports = addbroker;
+
+const sendRequestWithRetry = async (config, retries = 3, delay = 3000) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios(config);
+      return response; // If successful, return the response
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed: ${error.message}`);
+      if (attempt < retries) {
+        console.log(`Retrying in ${delay / 1000} seconds...`);
+        await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
+      } else {
+        throw new Error("Max retries reached. Request failed.");
+      }
+    }
+  }
+};
