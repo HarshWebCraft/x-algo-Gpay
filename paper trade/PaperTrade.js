@@ -1,6 +1,7 @@
 const { google } = require("googleapis");
 const fs = require("fs");
 const User = require("../models/users");
+const mongoose = require("mongoose");
 
 class PaperTrade {
   constructor(order) {
@@ -147,21 +148,6 @@ class PaperTrade {
     ];
 
     try {
-      // Append the trade data to the sheet
-      // const response = await sheets.spreadsheets.values.append({
-      //   spreadsheetId,
-      //   range,
-      //   valueInputOption: "RAW",
-      //   resource: {
-      //     values: [tradeData],
-      //   },
-      // });
-
-      // console.log(
-      //   "Trade data saved to Google Sheets:",
-      //   response.data.updates.updatedRange
-      // );
-
       await appendDataToSpreadsheets(users, strategyId, [tradeData]);
     } catch (error) {
       console.error("Error saving trade data to Google Sheets:", error);

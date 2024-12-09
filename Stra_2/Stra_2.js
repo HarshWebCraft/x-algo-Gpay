@@ -8,30 +8,7 @@ const quantity = 10;
 
 const strategy_2 = () => {
   const start = () => {
-    let tradeTriggered = false;
     const now = new Date();
-    const cutoffTime = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      12,
-      30,
-      0
-    ); // Next day 12:30 PM
-    const cutoffTimeout = cutoffTime.getTime() - now.getTime();
-
-    // Timeout to stop execution if no trade is triggered
-    const cutoffTimer = setTimeout(() => {
-      if (!tradeTriggered) {
-        console.log(
-          "No trade triggered by 12:30 PM. Rescheduling for 20:45 PM tomorrow."
-        );
-        schedule.scheduleJob("45 20 * * *", () => {
-          console.log("Running strategy at 20:45 PM.");
-          strategy_2();
-        });
-      }
-    }, cutoffTimeout);
 
     function toUnixTimestamp(dateStr, format = "%Y-%m-%d %H:%M:%S") {
       const date = new Date(dateStr);
@@ -148,8 +125,6 @@ const strategy_2 = () => {
 
             if (data.close > buyEntry) {
               console.log("------ buy alert ------");
-              tradeTriggered = true; // Update flag
-              clearTimeout(cutoffTimer); // Clear the cutoff timer
               ws.close();
               placeOrder({
                 symbol,
@@ -164,8 +139,6 @@ const strategy_2 = () => {
 
             if (data.close < sellEntry) {
               console.log("------ sell alert ------");
-              tradeTriggered = true; // Update flag
-              clearTimeout(cutoffTimer); // Clear the cutoff timer
               ws.close();
               placeOrder({
                 symbol,
@@ -194,11 +167,11 @@ const strategy_2 = () => {
   };
 
   console.log("Scheduling Strategy 2 at 20:45");
-  schedule.scheduleJob("45 20 * * *", () => {
+  schedule.scheduleJob("44 12 * * *", () => {
     console.log("Running strategy at 20:45 PM.");
     start();
   });
 };
 
-strategy_2();
+// strategy_2();
 module.exports = strategy_2;
