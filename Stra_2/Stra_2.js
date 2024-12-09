@@ -88,7 +88,7 @@ const strategy_2 = () => {
         console.log(`Highest High: ${highestHigh}`);
         console.log(`Lowest Low: ${lowestLow}`);
 
-        EntryAlert("BTCUSD", highestHigh, lowestLow);
+        EntryAlert("BTCUSD", highestHigh, lowestLow + 100);
       })
       .catch((error) => {
         console.error("Error fetching data from API:", error.message);
@@ -133,7 +133,7 @@ const strategy_2 = () => {
                 order_type: "market_order",
                 take_profit_point: buyEntry * 0.01,
                 stop_loss_point: buyEntry * 0.005,
-                strategy: 2,
+                strategy: "67572e5d8708e83f2195dbe3",
               });
             }
 
@@ -147,7 +147,7 @@ const strategy_2 = () => {
                 order_type: "market_order",
                 take_profit_point: sellEntry * 0.01,
                 stop_loss_point: sellEntry * 0.005,
-                strategy: 2,
+                strategy: "67572e5d8708e83f2195dbe3",
               });
             }
           }
@@ -167,7 +167,7 @@ const strategy_2 = () => {
   };
 
   console.log("Scheduling Strategy 2 at 20:45");
-  schedule.scheduleJob("44 12 * * *", () => {
+  schedule.scheduleJob("45 20 * * *", () => {
     console.log("Running strategy at 20:45 PM.");
     start();
   });
