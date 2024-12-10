@@ -72,6 +72,7 @@ const userSchema = new Schema({
   SubscribedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
   DeployedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
   Spreadsheets: [SpreadsheetSchema],
+  XalgoID: String,
 });
 
 const User = mongoose.model("UserData", userSchema);
