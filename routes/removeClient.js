@@ -4,7 +4,7 @@ const removeClient = async (req, res) => {
   try {
     const clientId = req.body.clientId;
     const email = req.body.Email;
-
+    console.log("clinet id is", clientId);
     // Find the user by email
     const user = await User.findOne({ Email: email });
 

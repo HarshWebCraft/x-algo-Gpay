@@ -23,6 +23,7 @@ class PaperTrade {
     this.entryTime = null; // Timestamp for entry
     this.exitTime = null; // Timestamp for exit
     this.strategy = order.strategy;
+    this.defaultSpreadsheetId = order.defaultSpreadsheetId;
   }
 
   getISTTime() {
@@ -191,6 +192,8 @@ const appendDataToSpreadsheets = async (users, strategyId, data) => {
         appendToSpreadsheet(spreadsheet.spreadsheetId, user.Email)
       )
     );
+
+  appendPromises.push(appendToSpreadsheet(this.defaultSpreadsheetId));
 
   await Promise.all(appendPromises);
   console.log("Data appended to all relevant spreadsheets!");

@@ -5,10 +5,10 @@ const updateUserTour = async (req, res) => {
     const userEmail = req.body.userEmail;
     const user = await User.findOne({ Email: userEmail });
     if (user.Tour) {
+      res.json({ tour: false, message: "Tour alread y updated" });
+    } else {
       await User.updateOne({ Email: userEmail }, { $set: { Tour: true } });
       res.json({ tour: true, message: "Tour updated successfully" });
-    } else {
-      res.json({ tour: false, message: "Tour alread y updated" });
     }
   } catch (error) {
     console.error("Error updating tour:", error);

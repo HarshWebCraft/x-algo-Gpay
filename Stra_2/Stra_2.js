@@ -134,6 +134,8 @@ const strategy_2 = () => {
                 take_profit_point: buyEntry * 0.01,
                 stop_loss_point: buyEntry * 0.005,
                 strategy: "67572e5d8708e83f2195dbe3",
+                defaultSpreadsheetId:
+                  "1duAldHS3kpMCavYaebHdMVvdqphTnwHxNPSLH5HJJoQ",
               });
             }
 
@@ -148,6 +150,8 @@ const strategy_2 = () => {
                 take_profit_point: sellEntry * 0.01,
                 stop_loss_point: sellEntry * 0.005,
                 strategy: "67572e5d8708e83f2195dbe3",
+                defaultSpreadsheetId:
+                  "1duAldHS3kpMCavYaebHdMVvdqphTnwHxNPSLH5HJJoQ",
               });
             }
           }

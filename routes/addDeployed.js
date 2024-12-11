@@ -27,7 +27,6 @@ const addDeployed = async (req, res) => {
     const date = new Date();
     const applyDate =
       date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
-
     const strategyObjectId = new mongoose.Types.ObjectId(id);
 
     const strategyDetails = await MarketPlace.findOne({
@@ -45,8 +44,8 @@ const addDeployed = async (req, res) => {
     }
 
     // Determine the Broker value
-    if (account === "papertrade") {
-      brokerValue = "PaperTrade";
+    if (account === "Paper Trade") {
+      brokerValue = "Paper Trade";
     } else {
       const isAngelOne = user.AngelBrokerData.some(
         (broker) => broker.AngelId === account
@@ -63,6 +62,8 @@ const addDeployed = async (req, res) => {
         return res.status(400).json({ error: "Invalid account or broker ID." });
       }
     }
+
+    console.log("fghjkk", account);
 
     // Update the user
     const updatedUser = await User.findOneAndUpdate(
@@ -171,7 +172,5 @@ const addDeployed = async (req, res) => {
       .json({ error: "An error occurred while deploying the strategy." });
   }
 };
-
-module.exports = addDeployed;
 
 module.exports = addDeployed;

@@ -176,6 +176,8 @@ const strategy = () => {
               take_profit_point: take_profit_point,
               stop_loss_point: stop_loss_point,
               strategy: "67208287a8f7ff08c36e54d2",
+              defaultSpreadsheetId:
+                "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4",
             });
             ws.close();
           }
@@ -191,6 +193,8 @@ const strategy = () => {
               take_profit_point: take_profit_point,
               stop_loss_point: stop_loss_point,
               strategy: "67208287a8f7ff08c36e54d2",
+              defaultSpreadsheetId:
+                "1vbuZ-VwVzJAN-QYgNBYsVQ10De9B0tz8AQIqxuwkjc4",
             });
           }
         }

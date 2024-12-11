@@ -188,9 +188,6 @@ const addbroker = async (req, res) => {
         const jsonObject = JSON.parse(JSON.stringify(response.data));
         console.log(response.data.message);
         console.log(response.data);
-        setTimeout(function () {
-          console.log("Pause for 1 or 2 seconds");
-        }, 1000);
 
         if (response.data.status) {
           console.log(response.data.data.jwtToken);
@@ -222,7 +219,7 @@ const addbroker = async (req, res) => {
 
           console.log("a", responseData[0].userData.data.net);
         } else {
-          // res.json(false)
+          res.json(false);
         }
       }
 
