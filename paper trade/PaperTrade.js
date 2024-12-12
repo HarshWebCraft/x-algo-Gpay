@@ -26,6 +26,53 @@ class PaperTrade {
     this.defaultSpreadsheetId = order.defaultSpreadsheetId;
   }
 
+  async appendDataToSpreadsheets(users, strategyId, data) {
+    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const appendToSpreadsheet = async (spreadsheetId, userEmail) => {
+      try {
+        const range = "Sheet1!A2"; // Start from row 2 to avoid the header row
+        const values = data; // Only the trade data, no header
+
+        await sheets.spreadsheets.values.append({
+          spreadsheetId,
+          range,
+          valueInputOption: "RAW",
+          resource: { values },
+        });
+
+        console.log(
+          `Data appended successfully to spreadsheet for ${userEmail}`
+        );
+      } catch (error) {
+        console.error(
+          `Error appending data to ${userEmail}'s spreadsheet:`,
+          error
+        );
+      }
+    };
+
+    const appendPromises = users
+      .filter((user) => user.DeployedStrategies.includes(strategyId))
+      .map((user) =>
+        user.Spreadsheets.forEach((spreadsheet) =>
+          appendToSpreadsheet(spreadsheet.spreadsheetId, user.Email)
+        )
+      );
+    console.log("defaultSpreadsheetId:", this.defaultSpreadsheetId);
+    appendPromises.push(
+      appendToSpreadsheet(this.defaultSpreadsheetId, "Default User")
+    );
+
+    await Promise.all(appendPromises);
+    console.log("Data appended to all relevant spreadsheets!");
+  }
+
   getISTTime() {
     const date = new Date();
     const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
@@ -149,54 +196,54 @@ class PaperTrade {
     ];
 
     try {
-      await appendDataToSpreadsheets(users, strategyId, [tradeData]);
+      await this.appendDataToSpreadsheets(users, strategyId, [tradeData]);
     } catch (error) {
       console.error("Error saving trade data to Google Sheets:", error);
     }
   }
 }
 
-const appendDataToSpreadsheets = async (users, strategyId, data) => {
-  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-  const sheets = google.sheets({ version: "v4", auth });
+// const appendDataToSpreadsheets = async (users, strategyId, data) => {
+//   const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+//   const auth = new google.auth.GoogleAuth({
+//     credentials,
+//     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+//   });
+//   const sheets = google.sheets({ version: "v4", auth });
 
-  const appendToSpreadsheet = async (spreadsheetId, userEmail) => {
-    try {
-      const range = "Sheet1!A2"; // Start from row 2 to avoid the header row
-      const values = data; // Only the trade data, no header
+//   const appendToSpreadsheet = async (spreadsheetId, userEmail) => {
+//     try {
+//       const range = "Sheet1!A2"; // Start from row 2 to avoid the header row
+//       const values = data; // Only the trade data, no header
 
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range,
-        valueInputOption: "RAW",
-        resource: { values },
-      });
+//       await sheets.spreadsheets.values.append({
+//         spreadsheetId,
+//         range,
+//         valueInputOption: "RAW",
+//         resource: { values },
+//       });
 
-      console.log(`Data appended successfully to spreadsheet for ${userEmail}`);
-    } catch (error) {
-      console.error(
-        `Error appending data to ${userEmail}'s spreadsheet:`,
-        error
-      );
-    }
-  };
+//       console.log(`Data appended successfully to spreadsheet for ${userEmail}`);
+//     } catch (error) {
+//       console.error(
+//         `Error appending data to ${userEmail}'s spreadsheet:`,
+//         error
+//       );
+//     }
+//   };
 
-  const appendPromises = users
-    .filter((user) => user.DeployedStrategies.includes(strategyId))
-    .map((user) =>
-      user.Spreadsheets.forEach((spreadsheet) =>
-        appendToSpreadsheet(spreadsheet.spreadsheetId, user.Email)
-      )
-    );
+//   const appendPromises = users
+//     .filter((user) => user.DeployedStrategies.includes(strategyId))
+//     .map((user) =>
+//       user.Spreadsheets.forEach((spreadsheet) =>
+//         appendToSpreadsheet(spreadsheet.spreadsheetId, user.Email)
+//       )
+//     );
+//   console.log("default spreadSheet id ", this.defaultSpreadsheetId);
+//   appendPromises.push(appendToSpreadsheet(this.defaultSpreadsheetId));
 
-  appendPromises.push(appendToSpreadsheet(this.defaultSpreadsheetId));
-
-  await Promise.all(appendPromises);
-  console.log("Data appended to all relevant spreadsheets!");
-};
+//   await Promise.all(appendPromises);
+//   console.log("Data appended to all relevant spreadsheets!");
+// };
 
 module.exports = PaperTrade;

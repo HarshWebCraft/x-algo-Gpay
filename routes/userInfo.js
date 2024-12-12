@@ -4,121 +4,100 @@ const speakeasy = require("speakeasy");
 const createDeltaClient = require("./DeltaClient");
 
 const userInfo = async (req, res) => {
-  console.log("userinfo" + req.body.Email);
+  const responseData = []; // Initialize response data array
 
-  const checking = await User.findOne({ Email: req.body.Email });
-  console.log("userinfo route");
-  console.log("userinfo" + checking);
-  const responseData = [];
+  try {
+    console.log("userinfo" + req.body.Email);
 
-  for (const item of checking.AngelBrokerData) {
-    try {
-      const angelId = item.AngelId;
-      const angelpass = item.AngelPass;
-      const secretKey = item.SecretKey;
+    // Fetch user data
+    const checking = await User.findOne({ Email: req.body.Email });
+    console.log("userinfo route");
+    console.log("userinfo" + checking);
 
-      // console.log('addbroker ma email , id , password and secretkey' + Email + item.AngelId + item.AngelPass)
+    // Iterate over AngelBrokerData
+    for (const item of checking.AngelBrokerData) {
+      try {
+        const totpCode = speakeasy.totp({
+          secret: `${item.SecretKey}`,
+          encoding: "base32",
+        });
 
-      console.log("after if and else");
+        const data = JSON.stringify({
+          clientcode: `${item.AngelId}`,
+          password: `${item.AngelPass}`,
+          totp: `${totpCode}`,
+        });
 
-      const totpCode = speakeasy.totp({
-        secret: `${item.SecretKey}`,
-        encoding: "base32",
-      });
+        const config = {
+          method: "post",
+          url: "https://apiconnect.angelbroking.com//rest/auth/angelbroking/user/v1/loginByPassword",
+          headers: {
+            /* Headers omitted for brevity */
+          },
+          data: data,
+        };
 
-      console.log("check");
+        const response = await axios(config);
+        const jwtToken = response.data.data.jwtToken;
 
-      var data = JSON.stringify({
-        clientcode: `${item.AngelId}`,
-        password: `${item.AngelPass}`,
-        totp: `${totpCode}`,
-      });
+        const profileConfig = {
+          method: "get",
+          url: "https://apiconnect.angelbroking.com/rest/secure/angelbroking/user/v1/getProfile",
+          headers: { Authorization: "Bearer " + jwtToken },
+        };
 
-      var config = {
-        method: "post",
-        url: "https://apiconnect.angelbroking.com//rest/auth/angelbroking/user/v1/loginByPassword",
-
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-UserType": "USER",
-          "X-SourceID": "WEB",
-          "X-ClientLocalIP": "192.168.157.1",
-          "X-ClientPublicIP": "106.193.147.98",
-          "X-MACAddress": "fe80::87f:98ff:fe5a:f5cb",
-          "X-PrivateKey": "xL9TyAO8",
-        },
-        data: data,
-      };
-
-      const response = await axios(config);
-
-      const jsonObject = JSON.parse(JSON.stringify(response.data));
-      console.log(response.data.message);
-      console.log(response.data);
-
-      jwtToken = response.data.data.jwtToken;
-
-      const profileConfig = {
-        method: "get",
-        url: "https://apiconnect.angelbroking.com/rest/secure/angelbroking/user/v1/getProfile",
-        headers: {
-          Authorization: "Bearer " + jwtToken,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-UserType": "USER",
-          "X-SourceID": "WEB",
-          "X-ClientLocalIP": "192.168.157.1",
-          "X-ClientPublicIP": "106.193.147.98",
-          "X-MACAddress": "fe80::87f:98ff:fe5a:f5cb",
-          "X-PrivateKey": "xL9TyAO8",
-        },
-      };
-
-      const profileResponse = await axios(profileConfig);
-      const profileData = profileResponse.data;
-      console.log(profileData);
-      responseData.push({
-        userData: profileData,
-      });
-    } catch (error) {
-      console.log(error);
+        const profileResponse = await axios(profileConfig);
+        responseData.push({ userData: profileResponse.data });
+      } catch (error) {
+        console.error(
+          `Error processing AngelBrokerData for ID: ${item.AngelId}`,
+          error.message
+        );
+        responseData.push({
+          AngelId: item.AngelId,
+          error: error.message, // Include error in the response data
+        });
+      }
     }
-  }
 
-  for (const schema of checking.DeltaBrokerSchema) {
-    try {
-      console.log("i am under the water");
-      const { deltaApiKey, deltaSecretKey } = schema;
+    // Iterate over DeltaBrokerSchema
+    for (const schema of checking.DeltaBrokerSchema) {
+      try {
+        const { deltaApiKey, deltaSecretKey } = schema;
 
-      // Fetch user details using Delta API
-      const client = await createDeltaClient(deltaApiKey, deltaSecretKey);
-      const userDetails = await client.apis.Account.getUser();
+        const client = await createDeltaClient(deltaApiKey, deltaSecretKey);
+        const userDetails = await client.apis.Account.getUser();
+        const response = await client.apis.Wallet.getBalances();
 
-      // Fetch wallet balances using Delta API
-      const response = await client.apis.Wallet.getBalances();
-
-      responseData.push({
-        deltaApiKey,
-        deltaSecretKey,
-        userDetails: userDetails.body, // Adjust based on the actual API response structure
-        balances: response.body, // Store the balances response (adjust based on actual structure)
-      });
-    } catch (error) {
-      console.error(
-        `Error fetching details for Delta account ${schema.deltaApiKey}:`,
-        error.message
-      );
-      responseData.push({
-        deltaApiKey: schema.deltaApiKey,
-        deltaSecretKey: schema.deltaSecretKey,
-        error: error.message,
-      });
+        responseData.push({
+          deltaApiKey,
+          deltaSecretKey,
+          userDetails: userDetails.body, // Adjust based on the actual API response structure
+          balances: response.body,
+        });
+      } catch (error) {
+        console.error(
+          `Error fetching details for Delta account ${schema.deltaApiKey}:`,
+          error.message
+        );
+        responseData.push({
+          deltaApiKey: schema.deltaApiKey,
+          deltaSecretKey: schema.deltaSecretKey,
+          error: error.message, // Include error in the response data
+        });
+      }
     }
+  } catch (error) {
+    console.error("Unexpected error in userInfo function:", error.message);
+    responseData.push({
+      error: "An unexpected error occurred during user processing.",
+      details: error.message,
+    });
+  } finally {
+    // Ensure the response is always sent
+    console.log(responseData);
+    res.json(responseData);
   }
-
-  console.log(responseData);
-  res.json(responseData);
 };
 
 module.exports = userInfo;

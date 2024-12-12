@@ -81,55 +81,58 @@ const fetchSheetData = async (req, res) => {
   }
 
   const Spreadsheets = userSchema.Spreadsheets;
+  const DeployedData = userSchema.DeployedData;
   const allSheetData = [];
 
   try {
     // Loop through each spreadsheet and fetch the corresponding data
     for (let i = 0; i < Spreadsheets.length; i++) {
-      const spreadsheetId = Spreadsheets[i].spreadsheetId;
-      const strategyId = Spreadsheets[i].strategyId;
+      if (userSchema.DeployedStrategiesBrokerIds[i] === "Paper Trade") {
+        const spreadsheetId = Spreadsheets[i].spreadsheetId;
+        const strategyId = Spreadsheets[i].strategyId;
 
-      const DeploedDate = userSchema.DeployedData[i].AppliedDate;
-      // Fetch metadata for the sheet (to get the sheet name)
-      const metadataResponse = await sheets.spreadsheets.get({
-        spreadsheetId,
-      });
+        const DeploedDate = userSchema.DeployedData[i].AppliedDate;
+        // Fetch metadata for the sheet (to get the sheet name)
+        const metadataResponse = await sheets.spreadsheets.get({
+          spreadsheetId,
+        });
 
-      const sheetName = metadataResponse.data.sheets[0].properties.title;
+        const sheetName = metadataResponse.data.sheets[0].properties.title;
 
-      // Fetch all sheet data (excluding headers)
-      const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
-      const sheetResponse = await sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: sheetRange,
-      });
+        // Fetch all sheet data (excluding headers)
+        const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
+        const sheetResponse = await sheets.spreadsheets.values.get({
+          spreadsheetId,
+          range: sheetRange,
+        });
 
-      let rows = sheetResponse.data.values;
-      if (rows && rows.length) {
-        rows = rows.slice(1); // Exclude header row
-      } else {
-        rows = [];
+        let rows = sheetResponse.data.values;
+        if (rows && rows.length) {
+          rows = rows.slice(1); // Exclude header row
+        } else {
+          rows = [];
+        }
+
+        // Fetch the value of cell K10 (or any other cells you need)
+        const cellRange = `${sheetName}!K10`;
+        const cellResponse = await sheets.spreadsheets.values.get({
+          spreadsheetId,
+          range: cellRange,
+        });
+
+        const cellValue = cellResponse.data.values
+          ? cellResponse.data.values[0][0]
+          : null;
+
+        // Push the sheet data into the allSheetData array
+        allSheetData.push({
+          strategyId: strategyId,
+          strategyName: DeployedData[i].StrategyName, // You can adjust this based on actual strategy names
+          sheetData: rows,
+          DeploedDate: DeploedDate,
+          cellData: { cell: "K10", value: cellValue },
+        });
       }
-
-      // Fetch the value of cell K10 (or any other cells you need)
-      const cellRange = `${sheetName}!K10`;
-      const cellResponse = await sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: cellRange,
-      });
-
-      const cellValue = cellResponse.data.values
-        ? cellResponse.data.values[0][0]
-        : null;
-
-      // Push the sheet data into the allSheetData array
-      allSheetData.push({
-        strategyId: strategyId,
-        strategyName: ``, // You can adjust this based on actual strategy names
-        sheetData: rows,
-        DeploedDate: DeploedDate,
-        cellData: { cell: "K10", value: cellValue },
-      });
     }
 
     // Send the response with all sheet data
