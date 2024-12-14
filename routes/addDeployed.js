@@ -128,6 +128,7 @@ const addDeployed = async (req, res) => {
     const emails = [
       "harshdvadhavana26@gmail.com",
       "ayushsantoki1462004@gmail.com",
+      "devpatel15.desktop@gmail.com",
     ];
 
     for (const email of emails) {
@@ -141,19 +142,7 @@ const addDeployed = async (req, res) => {
       });
     }
 
-    const values = [
-      [
-        "NO",
-        "Symbol",
-        "Entry Type",
-        "Entry Time",
-        "Exit Time",
-        "Entry Price",
-        "Exit Price",
-        "Qty",
-        "P&L",
-      ],
-    ];
+    const values = [];
     const range = "Sheet1!A1";
     await sheets.spreadsheets.values.append({
       spreadsheetId,

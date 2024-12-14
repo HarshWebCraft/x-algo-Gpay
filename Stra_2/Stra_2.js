@@ -135,7 +135,8 @@ const strategy_2 = () => {
                 stop_loss_point: buyEntry * 0.005,
                 strategy: "67572e5d8708e83f2195dbe3",
                 defaultSpreadsheetId:
-                  "1duAldHS3kpMCavYaebHdMVvdqphTnwHxNPSLH5HJJoQ",
+                  "1w7GNUtgsuGVK4l_1IMP-Qaw0Vo134yo6IfaKRAnrdU4",
+                
               });
             }
 
@@ -151,7 +152,7 @@ const strategy_2 = () => {
                 stop_loss_point: sellEntry * 0.005,
                 strategy: "67572e5d8708e83f2195dbe3",
                 defaultSpreadsheetId:
-                  "1duAldHS3kpMCavYaebHdMVvdqphTnwHxNPSLH5HJJoQ",
+                  "1w7GNUtgsuGVK4l_1IMP-Qaw0Vo134yo6IfaKRAnrdU4",
               });
             }
           }
@@ -171,7 +172,7 @@ const strategy_2 = () => {
   };
 
   console.log("Scheduling Strategy 2 at 20:45");
-  schedule.scheduleJob("45 20 * * *", () => {
+  schedule.scheduleJob("50 10 * * *", () => {
     console.log("Running strategy at 20:45 PM.");
     start();
   });

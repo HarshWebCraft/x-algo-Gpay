@@ -90,6 +90,7 @@ const fetchSheetData = async (req, res) => {
       if (userSchema.DeployedStrategiesBrokerIds[i] === "Paper Trade") {
         const spreadsheetId = Spreadsheets[i].spreadsheetId;
         const strategyId = Spreadsheets[i].strategyId;
+        const UserId = DeployedData[i].Account;
 
         const DeploedDate = userSchema.DeployedData[i].AppliedDate;
         // Fetch metadata for the sheet (to get the sheet name)
@@ -129,6 +130,7 @@ const fetchSheetData = async (req, res) => {
           strategyId: strategyId,
           strategyName: DeployedData[i].StrategyName, // You can adjust this based on actual strategy names
           sheetData: rows,
+          UserId: UserId,
           DeploedDate: DeploedDate,
           cellData: { cell: "K10", value: cellValue },
         });

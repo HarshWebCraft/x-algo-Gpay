@@ -68,6 +68,10 @@ const getUserBalance = async (req, res) => {
       userDetails.body.result.phishing_code
     );
 
+    const parsedData = JSON.parse(response.data);
+
+    const userId = parsedData.result[0].user_id;
+
     const deltaId = userDetails.body.result.phishing_code;
 
     const updatedUser = await User.findOneAndUpdate(
@@ -75,7 +79,7 @@ const getUserBalance = async (req, res) => {
       {
         $push: {
           DeltaBrokerSchema: {
-            deltaBrokerId: deltaId,
+            deltaBrokerId: userId,
             deltaSecretKey: apiSecret,
             deltaApiKey: apiKey,
           },

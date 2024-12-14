@@ -65,6 +65,7 @@ class PaperTrade {
         )
       );
     console.log("defaultSpreadsheetId:", this.defaultSpreadsheetId);
+    
     appendPromises.push(
       appendToSpreadsheet(this.defaultSpreadsheetId, "Default User")
     );

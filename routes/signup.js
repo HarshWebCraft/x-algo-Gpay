@@ -106,7 +106,7 @@ const signup = async (req, res) => {
     });
 
     const mailOptions = {
-      from: "XAlgos<team@xalgos.in>",
+      from: "X-Algos<team@xalgos.in>",
       to: `${req.body.email}`,
       subject: "Verify Your Email Address for XAlgos",
       html: `<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">

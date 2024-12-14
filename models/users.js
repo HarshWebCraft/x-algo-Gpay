@@ -9,7 +9,7 @@ const angelBrokerSchema = new Schema({
 });
 
 const deltaBrokerSchema = new Schema({
-  deltaBrokerId: String,
+  deltaBrokerId: Number,
   deltaSecretKey: String,
   deltaApiKey: String,
 });

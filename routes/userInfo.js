@@ -7,16 +7,19 @@ const userInfo = async (req, res) => {
   const responseData = []; // Initialize response data array
 
   try {
-    console.log("userinfo" + req.body.Email);
+    // console.log("userinfo" + req.body.Email);
 
     // Fetch user data
     const checking = await User.findOne({ Email: req.body.Email });
-    console.log("userinfo route");
-    console.log("userinfo" + checking);
+    // console.log("userinfo route");
+    // console.log("userinfo" + checking);
 
     // Iterate over AngelBrokerData
     for (const item of checking.AngelBrokerData) {
       try {
+
+       
+
         const totpCode = speakeasy.totp({
           secret: `${item.SecretKey}`,
           encoding: "base32",
@@ -32,26 +35,44 @@ const userInfo = async (req, res) => {
           method: "post",
           url: "https://apiconnect.angelbroking.com//rest/auth/angelbroking/user/v1/loginByPassword",
           headers: {
-            /* Headers omitted for brevity */
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "X-UserType": "USER",
+            "X-SourceID": "WEB",
+            "X-ClientLocalIP": "192.168.157.1",
+            "X-ClientPublicIP": "106.193.147.98",
+            "X-MACAddress": "fe80::87f:98ff:fe5a:f5cb",
+            "X-PrivateKey":'xL9TyAO8',
           },
           data: data,
         };
 
         const response = await axios(config);
+
         const jwtToken = response.data.data.jwtToken;
 
-        const profileConfig = {
+        var profileConfig = {
           method: "get",
-          url: "https://apiconnect.angelbroking.com/rest/secure/angelbroking/user/v1/getProfile",
-          headers: { Authorization: "Bearer " + jwtToken },
+          url: "https://apiconnect.angelone.in/rest/secure/angelbroking/user/v1/getProfile",
+    
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            "Content-Type": "application/json",
+            'Accept': "application/json",
+            "X-UserType": "USER",
+            "X-SourceID": "WEB",
+            "X-ClientLocalIP": "192.168.187.1",
+            "X-ClientPublicIP": "106.193.147.98",
+            "X-MACAddress": "fe80::87f:98ff:fe5a:f5cb",
+            "X-PrivateKey": "xL9TyAO8",
+          },
         };
-
         const profileResponse = await axios(profileConfig);
         responseData.push({ userData: profileResponse.data });
       } catch (error) {
         console.error(
           `Error processing AngelBrokerData for ID: ${item.AngelId}`,
-          error.message
+          error
         );
         responseData.push({
           AngelId: item.AngelId,
@@ -88,14 +109,13 @@ const userInfo = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error("Unexpected error in userInfo function:", error.message);
+    // console.error("Unexpected error in userInfo function:", error.message);
     responseData.push({
       error: "An unexpected error occurred during user processing.",
       details: error.message,
     });
   } finally {
     // Ensure the response is always sent
-    console.log(responseData);
     res.json(responseData);
   }
 };

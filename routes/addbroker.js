@@ -16,6 +16,7 @@ const User = require("../models/users");
 
 const addbroker = async (req, res) => {
   try {
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     console.log("Fisrt value from frontend " + req.body.First);
 
     if (req.body.First) {
@@ -64,12 +65,12 @@ const addbroker = async (req, res) => {
       const response = await axios(config);
 
       const jsonObject = JSON.parse(JSON.stringify(response.data));
-      console.log(response.data.message);
       console.log(response.data);
 
       if (response.data.status) {
-        jwtToken = jsonObject.data.jwtToken;
+        console.log("this is for search", jsonObject.data.jwtToken);
 
+        jwtToken = jsonObject.data.jwtToken;
         try {
           const updatedUser = await User.findOneAndUpdate(
             { Email: email },
@@ -88,20 +89,13 @@ const addbroker = async (req, res) => {
             }
           );
           console.log("User updated with AngelOne credentials:", updatedUser);
-
-          try {
-            const savedUser = await newUser.save();
-            console.log("User saved successfully:", savedUser);
-          } catch (err) {
-            console.error("Error saving new user:", err);
-          }
         } catch (error) {
           console.error(
             "Error updating user with AngelOne credentials:",
             error
           );
         }
-
+        await delay(1000);
         var rmsconfig = {
           method: "get",
           url: "https://apiconnect.angelbroking.com/rest/secure/angelbroking/user/v1/getRMS",
@@ -181,7 +175,8 @@ const addbroker = async (req, res) => {
 
         console.log("test 3");
 
-        const response = await sendRequestWithRetry(config, 3, 3000);
+        const response = await axios(config);
+        // const response = await sendRequestWithRetry(config, 3, 3000);
 
         console.log("test 4");
 
@@ -234,19 +229,19 @@ const addbroker = async (req, res) => {
 
 module.exports = addbroker;
 
-const sendRequestWithRetry = async (config, retries = 3, delay = 3000) => {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const response = await axios(config);
-      return response; // If successful, return the response
-    } catch (error) {
-      console.error(`Attempt ${attempt} failed: ${error.message}`);
-      if (attempt < retries) {
-        console.log(`Retrying in ${delay / 1000} seconds...`);
-        await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
-      } else {
-        throw new Error("Max retries reached. Request failed.");
-      }
-    }
-  }
-};
+// const sendRequestWithRetry = async (config, retries = 3, delay = 3000) => {
+//   for (let attempt = 1; attempt <= retries; attempt++) {
+//     try {
+//       const response = await axios(config);
+//       return response; // If successful, return the response
+//     } catch (error) {
+//       console.error(`Attempt ${attempt} failed: ${error.message}`);
+//       if (attempt < retries) {
+//         console.log(`Retrying in ${delay / 1000} seconds...`);
+//         await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
+//       } else {
+//         throw new Error("Max retries reached. Request failed.");
+//       }
+//     }
+//   }
+// };
