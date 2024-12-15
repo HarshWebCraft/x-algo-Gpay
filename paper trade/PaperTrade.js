@@ -59,17 +59,18 @@ class PaperTrade {
 
     const appendPromises = users
       .filter((user) => user.DeployedStrategies.includes(strategyId))
-      .map((user) =>
-        user.Spreadsheets.forEach((spreadsheet) =>
+      .flatMap((user) =>
+        user.Spreadsheets.map((spreadsheet) =>
           appendToSpreadsheet(spreadsheet.spreadsheetId, user.Email)
         )
       );
-    console.log("defaultSpreadsheetId:", this.defaultSpreadsheetId);
-    
+
+    // Add the default spreadsheet
     appendPromises.push(
       appendToSpreadsheet(this.defaultSpreadsheetId, "Default User")
     );
 
+    // Wait for all promises to resolve
     await Promise.all(appendPromises);
     console.log("Data appended to all relevant spreadsheets!");
   }
