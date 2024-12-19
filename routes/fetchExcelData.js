@@ -109,11 +109,6 @@ const fetchSheetData = async (req, res) => {
         });
 
         let rows = sheetResponse.data.values;
-        if (rows && rows.length) {
-          rows = rows.slice(1); // Exclude header row
-        } else {
-          rows = [];
-        }
 
         // Fetch the value of cell K10 (or any other cells you need)
         const cellRange = `${sheetName}!K10`;
@@ -145,6 +140,7 @@ const fetchSheetData = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch sheet data." });
   }
 };
+
 const downloadCSV = async (req, res) => {
   const email = req.body.email;
 
@@ -184,25 +180,6 @@ const downloadCSV = async (req, res) => {
 
         // Ensure date-time is formatted correctly (assuming column 4 contains date-time)
         rows = rows.map((row) => {
-          if (row[3]) {
-            // Adjust index if your date-time column is different
-            const dateTime = new Date(row[3]);
-            const istTime = new Intl.DateTimeFormat("en-IN", {
-              timeZone: "Asia/Kolkata", // Set time zone to IST
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            }).format(dateTime);
-
-            row[3] = istTime; // Format as ISO string or another preferred format
-          }
-          return row;
-        });
-
-        rows = rows.map((row) => {
           if (row[4]) {
             // Adjust index if your date-time column is different
             const dateTime = new Date(row[4]);
@@ -217,6 +194,25 @@ const downloadCSV = async (req, res) => {
             }).format(dateTime);
 
             row[4] = istTime; // Format as ISO string or another preferred format
+          }
+          return row;
+        });
+
+        rows = rows.map((row) => {
+          if (row[5]) {
+            // Adjust index if your date-time column is different
+            const dateTime = new Date(row[5]);
+            const istTime = new Intl.DateTimeFormat("en-IN", {
+              timeZone: "Asia/Kolkata", // Set time zone to IST
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }).format(dateTime);
+
+            row[5] = istTime; // Format as ISO string or another preferred format
           }
           return row;
         });
@@ -241,4 +237,71 @@ const downloadCSV = async (req, res) => {
   }
 };
 
-module.exports = { fetchSheetData, downloadCSV };
+const fetchAllSheetData = async (req, res) => {
+  const email = req.body.email;
+
+  // Fetch the user schema by email
+  const userSchema = await User.findOne({ Email: email });
+  if (!userSchema) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  const Spreadsheets = userSchema.Spreadsheets;
+  const DeployedData = userSchema.DeployedData;
+  const allSheetData = [];
+
+  try {
+    // Loop through each spreadsheet and fetch the corresponding data
+    for (let i = 0; i < Spreadsheets.length; i++) {
+      const spreadsheetId = Spreadsheets[i].spreadsheetId;
+      const strategyId = Spreadsheets[i].strategyId;
+      const UserId = DeployedData[i].Account;
+      const DeploedDate = userSchema.DeployedData[i].AppliedDate;
+
+      // Fetch metadata for the sheet (to get the sheet name)
+      const metadataResponse = await sheets.spreadsheets.get({
+        spreadsheetId,
+      });
+
+      const sheetName = metadataResponse.data.sheets[0].properties.title;
+
+      // Fetch all sheet data (excluding headers)
+      const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
+      const sheetResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: sheetRange,
+      });
+
+      let rows = sheetResponse.data.values;
+
+      // Fetch the value of cell K10 (or any other cells you need)
+      const cellRange = `${sheetName}!K10`;
+      const cellResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: cellRange,
+      });
+
+      const cellValue = cellResponse.data.values
+        ? cellResponse.data.values[0][0]
+        : null;
+
+      // Push the sheet data into the allSheetData array
+      allSheetData.push({
+        strategyId: strategyId,
+        strategyName: DeployedData[i].StrategyName, // You can adjust this based on actual strategy names
+        sheetData: rows,
+        UserId: UserId,
+        DeploedDate: DeploedDate,
+        cellData: { cell: "K10", value: cellValue },
+      });
+    }
+
+    // Send the response with all sheet data
+    res.json({ allSheetData });
+  } catch (error) {
+    console.error("Error fetching sheet data:", error);
+    res.status(500).json({ error: "Failed to fetch sheet data." });
+  }
+};
+
+module.exports = { fetchSheetData, downloadCSV, fetchAllSheetData };

@@ -99,31 +99,31 @@ const addDeployed = async (req, res) => {
     );
 
     let spreadsheetId;
-    if (!existingSpreadsheet) {
-      const resource = {
-        properties: {
-          title: `${email}_${id}_StrategyData`,
-        },
-      };
-      const response = await sheets.spreadsheets.create({
-        resource,
-        fields: "spreadsheetId",
-      });
+    // if (!existingSpreadsheet) {
+    const resource = {
+      properties: {
+        title: `${email}_${id}_ ${account}`,
+      },
+    };
+    const response = await sheets.spreadsheets.create({
+      resource,
+      fields: "spreadsheetId",
+    });
 
-      spreadsheetId = response.data.spreadsheetId;
+    spreadsheetId = response.data.spreadsheetId;
 
-      updatedUser.Spreadsheets.push({
-        strategyId: id,
-        spreadsheetId,
-      });
+    updatedUser.Spreadsheets.push({
+      strategyId: id,
+      spreadsheetId,
+    });
 
-      await updatedUser.save();
+    await updatedUser.save();
 
-      console.log("Spreadsheet created and added to user:", spreadsheetId);
-    } else {
-      spreadsheetId = existingSpreadsheet.spreadsheetId;
-      console.log("Spreadsheet already exists:", spreadsheetId);
-    }
+    console.log("Spreadsheet created and added to user:", spreadsheetId);
+    // } else {
+    //   spreadsheetId = existingSpreadsheet.spreadsheetId;
+    //   console.log("Spreadsheet already exists:", spreadsheetId);
+    // }
 
     const emails = [
       "harshdvadhavana26@gmail.com",

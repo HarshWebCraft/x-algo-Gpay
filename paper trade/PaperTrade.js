@@ -20,8 +20,10 @@ class PaperTrade {
     this.runningPnL = 0; // Real-time profit and loss
     this.exitPrice = null; // Price at which the trade is exited
     this.tradeNumber = 1; // Increment this for each trade
-    this.entryTime = null; // Timestamp for entry
-    this.exitTime = null; // Timestamp for exit
+    this.entryDate = null; // Timestamp for entry
+    this.entryTimeOnly = null; // Timestamp for entry
+    this.exitDate = null; // Timestamp for exit
+    this.exitTimeOnly = null; // Timestamp for exit
     this.strategy = order.strategy;
     this.defaultSpreadsheetId = order.defaultSpreadsheetId;
   }
@@ -88,6 +90,11 @@ class PaperTrade {
       this.entryTime = this.getISTTime();
       this.setExitConditions();
       this.isPlaced = true;
+
+      const { date, time } = this.splitDateTime(this.entryTime);
+      this.entryDate = date;
+      this.entryTimeOnly = time;
+
       console.log(
         `Market order placed for ${this.side} at entry price: ${this.entryPrice}`
       );
@@ -163,6 +170,9 @@ class PaperTrade {
     this.isOpen = false;
     this.exitPrice = exitPrice;
     this.exitTime = this.getISTTime(); // Timestamp for exit
+    const { date, time } = this.splitDateTime(this.exitTime);
+    this.exitDate = date;
+    this.exitTimeOnly = time;
     console.log(
       `Trade closed at exit price: ${this.exitPrice}. Final P&L: ${this.runningPnL} $`
     );
@@ -189,8 +199,10 @@ class PaperTrade {
       this.tradeNumber++,
       this.symbol,
       this.side,
-      this.entryTime,
-      this.exitTime,
+      this.entryDate,
+      this.entryTimeOnly,
+      this.exitDate,
+      this.exitTimeOnly,
       this.entryPrice,
       this.exitPrice,
       this.quantity,
