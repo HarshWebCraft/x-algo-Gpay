@@ -36,7 +36,7 @@ const signin = async (req, res) => {
           .replace("*FNAME*", checking.Name || "User")
 
           .replace(
-            "Greenville, SC,United States",
+            "Greenville",
             `IP: ${userIp}, ${location.city}, ${location.regionName}, ${location.country}`
           )
           .replace("February 17th, 22:21 GMT", new Date().toUTCString());
