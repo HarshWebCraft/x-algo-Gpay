@@ -3,6 +3,7 @@ const axios = require("axios");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
+const ip = require("ip");
 
 const getLocationFromIP = async (ip) => {
   const response = await axios.get(`http://ip-api.com/json/${ip}`);
@@ -37,7 +38,9 @@ const signin = async (req, res) => {
 
           .replace(
             "Greenville",
-            `IP: ${userIp}, ${location.city}, ${location.regionName}, ${location.country}`
+            `IP: ${ip.address()}, ${location.city}, ${location.regionName}, ${
+              location.country
+            }`
           )
           .replace("February 17th, 22:21 GMT", new Date().toUTCString());
 
