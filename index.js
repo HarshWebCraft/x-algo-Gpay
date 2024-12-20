@@ -12,6 +12,7 @@ const server = http.createServer(app);
 require("dotenv").config();
 const { openTrades } = require("./paper trade/placeOrder.js");
 const User = require("./models/users.js");
+const requestIp = require("request-ip");
 // const strategy = require("./routes/strategy.js");
 
 const signup = require("./routes/signup");
@@ -68,6 +69,7 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
+app.use(requestIp.mw());
 
 app.get("/server/test", async (req, res) => {
   const strategy = "67208287a8f7ff08c36e54d2";

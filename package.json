@@ -33,6 +33,7 @@
     "nodemon": "^3.0.3",
     "portscanner": "^2.2.0",
     "razorpay": "^2.9.4",
+    "request-ip": "^3.3.0",
     "smartapi-javascript": "^1.0.23",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
