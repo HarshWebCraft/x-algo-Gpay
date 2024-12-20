@@ -84,6 +84,11 @@ class PaperTrade {
     return istDate.toISOString().slice(0, 19).replace("T", " "); // Format as 'YYYY-MM-DD HH:MM:SS'
   }
 
+  splitDateTime(timestamp) {
+    const [date, time] = timestamp.split(" ");
+    return { date, time };
+  }
+
   checkEntryCondition(currentPrice) {
     if (this.orderType === "market_order" && !this.isPlaced) {
       this.entryPrice = currentPrice;
