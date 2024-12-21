@@ -2,7 +2,6 @@ const User = require("../models/users");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const crypto = require("crypto");
 var db = mongoose.connection;
 
 if (process.env.NODE_ENV !== "production") {
@@ -44,13 +43,23 @@ const signup = async (req, res) => {
 
     if (checking) {
       console.log("User details already exist");
-      return res.json({ signup: false });
+      return res.json({ signup: false, referalCode: false });
     }
 
     let XalgoID;
     do {
       XalgoID = await generateXalgoID();
     } while (!(await isXalgoIDUnique(XalgoID)));
+
+    // Check if a referral code is provided
+    let referrer = null;
+    if (req.body.referralCode) {
+      referrer = await User.findOne({ ReferralCode: req.body.referralCode });
+      if (!referrer) {
+        console.log("Invalid referral code");
+        return res.json({ signup: true, referalCode: false });
+      }
+    }
 
     const data = {
       Name: "",
@@ -64,8 +73,12 @@ const signup = async (req, res) => {
       ActiveStrategys: 0,
       MyStartegies: [],
       Tour: false,
-      XalgoID: XalgoID, // Add the unique XalgoID
+      XalgoID: XalgoID,
       BrokerIds: ["Paper Trade"],
+      // Referral Fields
+      ReferralCode: XalgoID, // Generating unique Referral Code
+      ReferredBy: referrer ? referrer._id : null, // Assign referrer if available
+      ReferredUsers: [], // Add this user to referrer's list if they signed up via referral
     };
 
     console.log(data);
@@ -78,6 +91,12 @@ const signup = async (req, res) => {
       }
     });
 
+    // Update referrer's ReferredUsers list
+    if (referrer) {
+      referrer.ReferredUsers.push(data._id);
+      await referrer.save();
+    }
+
     const encrypt = (text) => Buffer.from(text).toString("base64");
     const encryptedEmail = encrypt(req.body.email);
 
@@ -85,24 +104,14 @@ const signup = async (req, res) => {
       encryptedEmail
     )}`;
 
-    // const transporter = nodemailer.createTransport({
-    //   service: "gmail",
-    //   auth: {
-    //     user: "harshdvadhavana26@gmail.com",
-    //     pass: "sfai mxlq yera mfmh",
-    //   },
-    // });
-
     const transporter = nodemailer.createTransport({
-      host: "smtpout.secureserver.net", // Replace with smtp.office365.com if using Microsoft 365
-      port: 465, // Use 587 for TLS
-      secure: true, // true for 465, false for 587
+      host: "smtpout.secureserver.net",
+      port: 465,
+      secure: true,
       auth: {
-        user: "team@xalgos.in", // Your professional email
-        pass: "*@|905@xalgos.in", // Your GoDaddy email password
+        user: "team@xalgos.in",
+        pass: "*@|905@xalgos.in",
       },
-      logger: true,
-      debug: true,
     });
 
     const mailOptions = {
@@ -163,10 +172,10 @@ const signup = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error("Error occurred:", error);
+        // console.error("Error occurred:", error);
       } else {
-        console.log("Email sent:", info.response);
-        return res.json({ email: data.email });
+        console.log("Email sent:");
+        // return res.json({ email: data.Email });
       }
     });
 
@@ -174,6 +183,7 @@ const signup = async (req, res) => {
     return res.json({
       signup: true,
       Verification: false,
+      referalCode: true,
     });
   } catch (e) {
     console.log("Error:", e);

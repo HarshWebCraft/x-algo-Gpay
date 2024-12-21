@@ -13,6 +13,7 @@ const getLocationFromIP = async (ip) => {
 const signin = async (req, res) => {
   const checking = await User.findOne({ Email: req.body.email });
   const userIp = req.clientIp;
+  const deviceInfo = req.body.deviceInfo;
   console.log(">>>>>>>>>>>", userIp);
 
   if (checking) {
@@ -35,6 +36,7 @@ const signin = async (req, res) => {
         // Replace placeholders with actual data
         emailContent = emailContent
           .replace("*FNAME*", checking.Name || "User")
+          .replace("putInfo", deviceInfo || "none")
 
           .replace(
             "Greenville",

@@ -73,6 +73,16 @@ const userSchema = new Schema({
   DeployedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
   Spreadsheets: [SpreadsheetSchema],
   XalgoID: String,
+
+  // Referral System Fields
+  ReferralCode: { type: String, unique: true }, // Unique referral code for the user
+  ReferredBy: { type: Types.ObjectId, ref: "UserData" }, // User who referred this user
+  ReferReward: { type: Number, default: 75 }, // Reward for referring (₹75-₹100)
+  Discount: {
+    Percentage: { type: Number, default: 10 }, // Discount percentage (e.g., 10%)
+    DurationMonths: { type: Number, default: 0 }, // Duration of discount in months
+  },
+  ReferredUsers: [{ type: Types.ObjectId, ref: "UserData" }], // Users referred by this user
 });
 
 const User = mongoose.model("UserData", userSchema);

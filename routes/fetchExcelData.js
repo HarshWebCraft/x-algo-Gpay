@@ -252,6 +252,7 @@ const fetchAllSheetData = async (req, res) => {
 
   try {
     // Loop through each spreadsheet and fetch the corresponding data
+    console.log("length", Spreadsheets.length);
     for (let i = 0; i < Spreadsheets.length; i++) {
       const spreadsheetId = Spreadsheets[i].spreadsheetId;
       const strategyId = Spreadsheets[i].strategyId;
@@ -265,34 +266,42 @@ const fetchAllSheetData = async (req, res) => {
 
       const sheetName = metadataResponse.data.sheets[0].properties.title;
 
-      // Fetch all sheet data (excluding headers)
-      const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
-      const sheetResponse = await sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: sheetRange,
-      });
+      // Attempt to fetch all sheet data (excluding headers)
+      let rows = [];
+      try {
+        const sheetRange = `${sheetName}!A:Z`; // Adjust columns as needed
+        const sheetResponse = await sheets.spreadsheets.values.get({
+          spreadsheetId,
+          range: sheetRange,
+        });
+        rows = sheetResponse.data.values || []; // Default to empty array if no data
+      } catch (err) {
+        console.warn(`No data found for spreadsheet ID ${spreadsheetId}`);
+      }
 
-      let rows = sheetResponse.data.values;
+      // Attempt to fetch the value of cell K10 (or any other cells you need)
+      let cellValue = null;
+      try {
+        const cellRange = `${sheetName}!K10`;
+        const cellResponse = await sheets.spreadsheets.values.get({
+          spreadsheetId,
+          range: cellRange,
+        });
+        cellValue = cellResponse.data.values
+          ? cellResponse.data.values[0][0]
+          : null;
+      } catch (err) {
+        console.warn(`No cell data found for spreadsheet ID ${spreadsheetId}`);
+      }
 
-      // Fetch the value of cell K10 (or any other cells you need)
-      const cellRange = `${sheetName}!K10`;
-      const cellResponse = await sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: cellRange,
-      });
-
-      const cellValue = cellResponse.data.values
-        ? cellResponse.data.values[0][0]
-        : null;
-
-      // Push the sheet data into the allSheetData array
+      // Push the sheet data into the allSheetData array, ensuring defaults
       allSheetData.push({
         strategyId: strategyId,
         strategyName: DeployedData[i].StrategyName, // You can adjust this based on actual strategy names
-        sheetData: rows,
+        sheetData: rows, // Empty array if no data
         UserId: UserId,
         DeploedDate: DeploedDate,
-        cellData: { cell: "K10", value: cellValue },
+        cellData: { cell: "K10", value: cellValue }, // Null if no value
       });
     }
 
