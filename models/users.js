@@ -47,13 +47,23 @@ const transaction = new Schema({
 
 const SpreadsheetSchema = new Schema({
   strategyId: { type: Types.ObjectId, ref: "MarketPlace", required: true },
-  spreadsheetId: { type: String, required: true }, // Google Spreadsheet ID
+  spreadsheetId: { type: String, required: true },
+});
+
+const ReferrSchema = new Schema({
+  PromoCode: String,
+  ReferredBy: { type: String, default: null },
+  ReferReward: String,
+  PromotingRewardAMT: Number,
+  Paid: { type: Boolean, default: false },
+  Coupnes: String,
 });
 
 const userSchema = new Schema({
   Name: String,
   Email: String,
   Password: String,
+  signupMethod: String,
   MobileNo: String,
   Balance: { type: Number, default: 0 },
   Transaction: [transaction],
@@ -73,16 +83,7 @@ const userSchema = new Schema({
   DeployedStrategies: [{ type: Types.ObjectId, ref: "MarketPlace" }],
   Spreadsheets: [SpreadsheetSchema],
   XalgoID: String,
-
-  // Referral System Fields
-  ReferralCode: { type: String, unique: true }, // Unique referral code for the user
-  ReferredBy: { type: Types.ObjectId, ref: "UserData" }, // User who referred this user
-  ReferReward: { type: Number, default: 75 }, // Reward for referring (₹75-₹100)
-  Discount: {
-    Percentage: { type: Number, default: 10 }, // Discount percentage (e.g., 10%)
-    DurationMonths: { type: Number, default: 0 }, // Duration of discount in months
-  },
-  ReferredUsers: [{ type: Types.ObjectId, ref: "UserData" }], // Users referred by this user
+  Referr: [ReferrSchema],
 });
 
 const User = mongoose.model("UserData", userSchema);
@@ -91,5 +92,6 @@ module.exports = userSchema;
 module.exports = angelBrokerSchema;
 module.exports = deltaBrokerSchema;
 module.exports = transaction;
+module.exports = ReferrSchema;
 
 module.exports = User;

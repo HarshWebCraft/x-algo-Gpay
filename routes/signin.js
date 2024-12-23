@@ -75,8 +75,6 @@ const sendEmail = async (userEmail, emailContent) => {
       user: "team@xalgos.in", // Your professional email
       pass: "*@|905@xalgos.in", // Your GoDaddy email password
     },
-    logger: true,
-    debug: true,
   });
 
   const mailOptions = {

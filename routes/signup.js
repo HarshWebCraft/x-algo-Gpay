@@ -50,75 +50,82 @@ const signup = async (req, res) => {
     do {
       XalgoID = await generateXalgoID();
     } while (!(await isXalgoIDUnique(XalgoID)));
-
-    // Check if a referral code is provided
-    let referrer = null;
-    if (req.body.referralCode) {
-      referrer = await User.findOne({ ReferralCode: req.body.referralCode });
-      if (!referrer) {
-        console.log("Invalid referral code");
-        return res.json({ signup: true, referalCode: false });
+    if (req.body.signupMethod == "IdPasword") {
+      console.log("as");
+      let referrer = null;
+      if (req.body.promoCode != "") {
+        referrer = await User.findOne({
+          "Referr.PromoCode": req.body.promoCode,
+        });
+        if (!referrer) {
+          console.log("Invalid referral code");
+          return res.json({ signup: true, referalCode: false });
+        }
       }
-    }
+      const data = {
+        Name: "",
+        Email: req.body.email,
+        signupMethod: req.body.signupMethod,
+        Password: "",
+        MobileNo: "",
+        Profile_Img: "",
+        Balance: 0,
+        Broker: false,
+        Verification: false,
+        BrokerCount: 0,
+        ActiveStrategys: 0,
+        MyStartegies: [],
+        Tour: false,
+        XalgoID: XalgoID,
+        BrokerIds: ["Paper Trade"],
+        Referr: {
+          PromoCode: XalgoID,
+          ReferredBy: req.body.promoCode || null,
+          ReferReward: "",
+          PromotingRewardAMT: 75,
+          Paid: false,
+          Coupnes: "",
+        },
+      };
 
-    const data = {
-      Name: "",
-      Email: req.body.email,
-      Password: "",
-      MobileNo: "",
-      Profile_Img: "",
-      Broker: false,
-      Verification: false,
-      BrokerCount: 0,
-      ActiveStrategys: 0,
-      MyStartegies: [],
-      Tour: false,
-      XalgoID: XalgoID,
-      BrokerIds: ["Paper Trade"],
-      // Referral Fields
-      ReferralCode: XalgoID, // Generating unique Referral Code
-      ReferredBy: referrer ? referrer._id : null, // Assign referrer if available
-      ReferredUsers: [], // Add this user to referrer's list if they signed up via referral
-    };
+      console.log(data);
 
-    console.log(data);
+      db.collection("userdatas").insertOne(data, (err, res) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Inserted new user to database");
+        }
+      });
 
-    db.collection("userdatas").insertOne(data, (err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Inserted new user to database");
-      }
-    });
+      // Update referrer's ReferredUsers list
+      // if (referrer) {
+      //   referrer.ReferredUsers.push({  });
+      //   await referrer.save();
+      // }
 
-    // Update referrer's ReferredUsers list
-    if (referrer) {
-      referrer.ReferredUsers.push(data._id);
-      await referrer.save();
-    }
+      const encrypt = (text) => Buffer.from(text).toString("base64");
+      const encryptedEmail = encrypt(req.body.email);
 
-    const encrypt = (text) => Buffer.from(text).toString("base64");
-    const encryptedEmail = encrypt(req.body.email);
+      const verificationLink = `${url}/verify-email?email=${encodeURIComponent(
+        encryptedEmail
+      )}`;
 
-    const verificationLink = `${url}/verify-email?email=${encodeURIComponent(
-      encryptedEmail
-    )}`;
+      const transporter = nodemailer.createTransport({
+        host: "smtpout.secureserver.net",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "team@xalgos.in",
+          pass: "*@|905@xalgos.in",
+        },
+      });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtpout.secureserver.net",
-      port: 465,
-      secure: true,
-      auth: {
-        user: "team@xalgos.in",
-        pass: "*@|905@xalgos.in",
-      },
-    });
-
-    const mailOptions = {
-      from: "X-Algos<team@xalgos.in>",
-      to: `${req.body.email}`,
-      subject: "Verify Your Email Address for XAlgos",
-      html: `<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
+      const mailOptions = {
+        from: "X-Algos<team@xalgos.in>",
+        to: `${req.body.email}`,
+        subject: "Verify Your Email Address for XAlgos",
+        html: `<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
         <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
             style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
             <tr>
@@ -168,23 +175,24 @@ const signup = async (req, res) => {
             </tr>
         </table>
     </body>`,
-    };
+      };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        // console.error("Error occurred:", error);
-      } else {
-        console.log("Email sent:");
-        // return res.json({ email: data.Email });
-      }
-    });
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          // console.error("Error occurred:", error);
+        } else {
+          console.log("Email sent:");
+          // return res.json({ email: data.Email });
+        }
+      });
 
-    console.log("Successfully Signup");
-    return res.json({
-      signup: true,
-      Verification: false,
-      referalCode: true,
-    });
+      console.log("Successfully Signup");
+      return res.json({
+        signup: true,
+        Verification: false,
+        referalCode: true,
+      });
+    }
   } catch (e) {
     console.log("Error:", e);
     return res.status(500).json({ error: "Internal server error" });
