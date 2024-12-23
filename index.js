@@ -54,8 +54,7 @@ const removeSubscribe = require("./routes/removeSubscribe.js");
 const getUserBalance = require("./routes/addDeltaBroker.js");
 const strategy_2 = require("./Stra_2/Stra_2.js");
 const strategy_3 = require("./Stra_3/Stra_3.js");
-const authSignUp = require("./routes/authSignUp.js");
-const authSignIn = require("./routes/authSignIn.js");
+const authSignUp = require("./routes/authSignUP.js");
 
 const {
   fetchSheetData,
@@ -63,6 +62,7 @@ const {
   fetchAllSheetData,
 } = require("./routes/fetchExcelData.js");
 const removeDeployStra = require("./routes/removeDeployStra.js");
+const authSignIn = require("./routes/authSignIn.js");
 
 require("./models/users");
 const corsOptions = {
