@@ -83,7 +83,7 @@ const getUserBalance = async (req, res) => {
             deltaSecretKey: apiSecret,
             deltaApiKey: apiKey,
           },
-          BrokerIds: deltaId,
+          BrokerIds: userId,
         },
       },
       { new: true, upsert: false }
